@@ -67,22 +67,16 @@ class ncadapter {
         const forwardMsg = {
             test: true, // 标记下，视为转发消息，防止套娃
             message: [],
-            data: { type: 'test', text: 'forward', app: 'com.tencent.multimsg', meta: { detail: { news: [{ text: '1' }] }, resid: '', uniseq: '', summary: '' } }
+            data: { type: 'test', text: 'forward', app: 'com.tencent.multimsg', meta: { detail: { news: [{ text: '' }] }, resid: '', uniseq: '', summary: '' } }
         };
 
         // 收集需要处理的原始数据项（包含 nickname 和 user_id）
         const itemsToProcess = [];
 
-        for (const item of data) { // 使用 for...of 遍历数组，避免 for...in 的潜在问题
-            // 处理转发消息套娃（如果是已有的转发消息，直接合并其 message）
-            // if (typeof item === 'object' && (item?.test || item?.message?.test)) {
-            //     forwardMsg.message.push(...(item?.message?.test ? item.message.message : item.message));
-            // } else {
-            //     // 非转发消息，保存完整数据项（包含 nickname、user_id、message）
+        for (const item of data) {
             if (item?.message) {
-                itemsToProcess.push(item); // 保存完整对象，而非仅 message
+                itemsToProcess.push(item);
             }
-            // }
         }
 
         for (const item of itemsToProcess) {
@@ -93,7 +87,8 @@ class ncadapter {
                     data: {
                         nickname: item.nickname || this.nickname, // 使用传入的 nickname
                         user_id: String(item.user_id || this.id), // 使用传入的 user_id 并转为字符串
-                        content: item.message
+                        content: item.message,
+                        news: item.message.data?.meta?.detail?.news || '聊天记录'
                     }
                 });
             } catch (err) {
@@ -595,8 +590,9 @@ class ncadapter {
         let res
         try {
             if (node) {
-                let body = { group_id, message: ncmsg }
-                console.log(JSON.stringify(body))
+                let news = {}
+                if(msg.data.meta.detail.news[0].text) news = { news: msg.data.meta.detail.news } // 当news不存在时，不传递news避免显示异常
+                let body = { group_id, message: ncmsg, ...news }
                 res = await this.napcat.send_group_forward_msg(body)
             } else {
                 res = await this.napcat.send_group_msg({ group_id, message: ncmsg })
