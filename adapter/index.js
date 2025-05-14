@@ -75,14 +75,14 @@ class ncadapter {
 
         for (const item of data) { // 使用 for...of 遍历数组，避免 for...in 的潜在问题
             // 处理转发消息套娃（如果是已有的转发消息，直接合并其 message）
-            if (typeof item === 'object' && (item?.test || item?.message?.test)) {
-                forwardMsg.message.push(...(item?.message?.test ? item.message.message : item.message));
-            } else {
-                // 非转发消息，保存完整数据项（包含 nickname、user_id、message）
-                if (item?.message) {
-                    itemsToProcess.push(item); // 保存完整对象，而非仅 message
-                }
+            // if (typeof item === 'object' && (item?.test || item?.message?.test)) {
+            //     forwardMsg.message.push(...(item?.message?.test ? item.message.message : item.message));
+            // } else {
+            //     // 非转发消息，保存完整数据项（包含 nickname、user_id、message）
+            if (item?.message) {
+                itemsToProcess.push(item); // 保存完整对象，而非仅 message
             }
+            // }
         }
 
         for (const item of itemsToProcess) {
@@ -513,11 +513,11 @@ class ncadapter {
         }
     }
     /**
- * 获取被引用的消息
- * @param {object} i
- * @param {number} group_id
- * @return {array|false} -
- */
+     * 获取被引用的消息
+     * @param {object} i
+     * @param {number} group_id
+     * @return {array|false} -
+     */
     async source(i, group_id) {
         /** 引用消息的id */
         const msg_id = i.data.id
@@ -557,32 +557,47 @@ class ncadapter {
             return false
         }
     }
+    /**
+     * 处理合并转发消息
+     * @param msg 
+     */
+    async dealNode(msg) {
+        let nmsg = []
+        for (let item of msg) {
+            try {
+                let { ncmsg: content } = await this.format(item.data.content)
+                let isSummary = false
+                if (content[0].type === 'node') {
+                    content = await this.dealNode(content)
+                    isSummary = true
+                }
+                nmsg.push({
+                    type: item.type,
+                    data: {
+                        ...item.data,
+                        content,
+                        summary: isSummary ? '聊天记录' : ''
+                    }
+                })
+            } catch (error) {
+                nccommon.error(this.id, error)
+            }
+        }
+        return nmsg
+    }
     async GsendMsg(group_id, msg, msgid) {
         let { ncmsg, raw_msg, node } = await this.format(msg)
 
         if (node) {
-            let nmsg = []
-            for (let item of ncmsg) {
-                try {
-                    let { ncmsg: content } = await this.format(item.data.content)
-                    nmsg.push({
-                        type: item.type,
-                        data: {
-                            ...item.data,
-                            content,
-                        }
-                    })
-                } catch (error) {
-                    nccommon.error(this.id, err)
-                }
-            }
-            ncmsg = nmsg
+            ncmsg = await this.dealNode(ncmsg)
         }
 
         let res
         try {
             if (node) {
-                res = await this.napcat.send_forward_msg({ group_id, messages: ncmsg })
+                let body = { group_id, message: ncmsg }
+                console.log(JSON.stringify(body))
+                res = await this.napcat.send_group_forward_msg(body)
             } else {
                 res = await this.napcat.send_group_msg({ group_id, message: ncmsg })
             }
