@@ -29,6 +29,7 @@ class ncadapter {
         this.napcat.on('message', async (data) => Bot.emit('message', await this.dealEvent(data)))
         this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
         this.napcat.on('request.friend', async (data) => Bot.emit('request.friend', await this.dealNotice(data, 'request.friend')))
+        this.napcat.on('notice.group_admin', async (data) => Bot.emit('notice.group.admin', await this.dealNotice(data, 'notice.group_admin')))
         this.bot = {
             nickname,
             uin: user_id
@@ -129,6 +130,19 @@ class ncadapter {
                     user_uid: ''
                 })
                 return this.dealEvent(data)
+            case 'notice.group_admin':
+                nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`)
+                let minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
+
+                minfo = minfo.find(m => m.user_id == data.user_id);
+
+                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, {
+                    ...minfo,
+                    shutup: minfo.shut_up_timestamp,
+                    user_uid: '',
+                    update_time: 0
+                })
+                return this.dealEvent(data)
         }
     }
     /**
@@ -222,7 +236,7 @@ class ncadapter {
             if (e.group_id) {
                 e.notice_type = 'group'
                 e.group = { ...this.pickGroup(group_id) }
-                let fl = await Bot[this.bot.uin].api.get_stranger_info(Number(e.user_id))
+                let fl = await this.napcat.get_stranger_info({ user_id: Number(e.user_id) })
                 e.member = {
                     ...fl,
                     card: fl?.nickname,
@@ -542,7 +556,7 @@ class ncadapter {
             sendMsg: async (msg) => await this.GsendMsg(group_id, msg),
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
-            // setName,
+            setName: async (name) => await this.setName(group_id, name),
             // setAvatar,
             muteAll: async (enable) => await this.muteAll(group_id, enable),
             muteMember: async (user_id, enable = 600) => await this.muteMember(group_id, user_id, enable),
@@ -566,6 +580,15 @@ class ncadapter {
             // getAtAllRemainder,
             // renew
         }
+    }
+    async setName(group_id, name) {
+        let res = true
+        try {
+            await this.napcat.set_group_name({ group_id, group_name: name })
+        } catch (error) {
+            throw error
+        }
+        return res
     }
     pickMember(gid, uid) {
         let info = (Bot[this.bot.uin].gml.get(gid)).get(uid)
@@ -755,7 +778,7 @@ class ncadapter {
             }
         } catch (error) {
             nccommon.error(`${this.bot.nickname}(${this.bot.uin})`, `发送消息错误`)
-            nccommon.error(`${this.bot.nickname}(${this.bot.uin})`, error)
+            throw error
         }
         if (res) {
             nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `send Group(${group_id}):`, raw_msg.join(' '))
