@@ -2,6 +2,7 @@ import { NCWebsocket, Structs } from "node-napcat-ts";
 import { nccommon } from "../lib/index.js";
 import { faceMap, pokeMap } from "../lib/face.js";
 import fs from 'fs'
+import path from "path";
 
 class ncadapter {
     constructor(cfg) {
@@ -236,7 +237,13 @@ class ncadapter {
                 break
         }
         /** 快速回复 */
-        e.reply = async (msg, quote) => await this.GsendMsg(group_id, msg)
+        e.reply = async (msg, quote) => {
+            if(quote) {
+                return await this.GsendMsg(group_id, msg, e.message_id)
+            } else {
+                return await this.GsendMsg(group_id, msg)
+            }
+        }
         /** 获取对应用户头像 */
         e.getAvatarUrl = (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
 
@@ -563,6 +570,37 @@ class ncadapter {
         }
     }
     /**
+     * 判断是否本地路径
+     * @param input 
+     * @returns 
+     */
+    isLocalPath(input) {
+        // 类型检查：非字符串直接返回 false
+        if (typeof input !== 'string') return false;
+      
+        // 排除网络协议和 base64
+        if (/^(?:https?|ftp|base64):\/\//i.test(input)) return false;
+      
+        // 识别 file:// 协议
+        if (/^file:\/\/+/i.test(input)) return true;
+      
+        // 跨平台绝对路径检测
+        const isAbsolutePath = path.posix.isAbsolute(input) || path.win32.isAbsolute(input);
+        if (isAbsolutePath) return true;
+      
+        // 相对路径检测（./ 或 ../）
+        if (/^\.\.?\//.test(input)) return true;
+      
+        // Windows 盘符路径检测（如 C:\）
+        if (/^[a-zA-Z]:[/\\]/i.test(input)) return true;
+      
+        // 排除含冒号的非路径字符串（如 mailto:）
+        if (input.includes(':')) return false;
+      
+        // 剩余情况视为本地相对路径
+        return true;
+      }
+    /**
      * 处理合并转发消息
      * @param msg 
      */
@@ -577,7 +615,7 @@ class ncadapter {
                     console.log(JSON.stringify(content, null, 3))
                     otherSet.summary = '聊天记录' //嵌套消息不传入summary会导致发送失败
                     if(item.data?.news[0]?.text) otherSet.news = item.data.news
-                    delete item.data?.news
+                    delete item.data?.news //删除嵌套消息中的news参数，避免消息显示异常。news参数由otherSet传入
                 }
 
                 nmsg.push({
@@ -594,8 +632,15 @@ class ncadapter {
         }
         return nmsg
     }
-    async GsendMsg(group_id, msg, msgid) {
-        let { ncmsg, raw_msg, node } = await this.format(msg)
+    /**
+     * 发送群消息
+     * @param group_id 群ID
+     * @param msg 
+     * @param msgid 引用的消息ID，node等特殊消息无效
+     * @returns { message_id }
+     */
+    async GsendMsg(group_id, msg, msgid = false) {
+        let { ncmsg, raw_msg, node } = await this.format(msg, msgid)
 
         if (node) {
             ncmsg = await this.dealNode(ncmsg)
@@ -624,7 +669,13 @@ class ncadapter {
         await Promise.all([this.loadGroups(), this.loadFriends()])
         nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `欢迎，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
     }
-    async format(msg) {
+    /**
+     * 标准化NC消息
+     * @param msg 
+     * @param message_id 是否引用
+     * @returns 
+     */
+    async format(msg, message_id) {
         /** 标准化ic消息 */
         let icmsg = this.array(msg)
         /** 标准化nc消息 */
@@ -633,6 +684,10 @@ class ncadapter {
         let raw_msg = []
         /** 是否合并转发 */
         let node = msg?.test || false
+        /** 处理引用消息，API要求reply必须放在第一位 */
+        if(message_id) {
+            ncmsg.push(Structs.reply(message_id))
+        }
 
         for (let i of icmsg) {
             switch (i.type) {
@@ -659,6 +714,10 @@ class ncadapter {
                     //暂时不写
                     break
                 case 'image':
+                    if(this.isLocalPath(i.file)) {
+                        let file = fs.readFileSync(i.file, 'base64url')
+                        i.file = `base64://${file}`
+                    }
                     ncmsg.push(Structs.image(i.file))
                     raw_msg.push(`[图片]`)
                     break
