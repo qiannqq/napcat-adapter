@@ -562,16 +562,24 @@ class ncadapter {
             // shareMusic,
             // getMemberMap,
             // getAvatarUrl,
-            // pickMember,
+            pickMember: (uid) => this.pickMember(group_id, uid),
             // getAtAllRemainder,
             // renew
         }
     }
+    pickMember(gid, uid) {
+        let info = (Bot[this.bot.uin].gml.get(gid)).get(uid)
+        return {
+            info
+        }
+    }
     async kickMember(group_id, user_id, reject_add_request = false) {
-        let res
+        let res = true
         try {
-            res = await this.napcat.set_group_kick({ group_id, user_id, reject_add_request  })
-        } catch { }
+            await this.napcat.set_group_kick({ group_id, user_id, reject_add_request  })
+        } catch { 
+            res = false
+        }
         return res
     }
     /**
@@ -582,10 +590,12 @@ class ncadapter {
      * @returns 
      */
     async muteMember(gid, uid, duration) {
-        let res
+        let res = true
         try {
-            res = await this.napcat.set_group_ban({ group_id: gid, user_id: uid, duration })
-        } catch (error) { }
+            await this.napcat.set_group_ban({ group_id: gid, user_id: uid, duration })
+        } catch (error) { 
+            res = false
+        }
         return res
     }
     /**
@@ -594,12 +604,13 @@ class ncadapter {
      * @param enable 
      */
     async muteAll(gid, enable) {
-        let res
+        let res = true
         try {
-            res = await this.napcat.set_group_whole_ban({ group_id: gid, enable })
+            await this.napcat.set_group_whole_ban({ group_id: gid, enable })
         } catch (error) {
-            
+            res = false
         }
+        return res
     }
     /**
      * 撤回消息
