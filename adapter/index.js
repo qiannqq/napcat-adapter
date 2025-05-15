@@ -819,6 +819,7 @@ class ncadapter {
                     raw_msg.push(`[图片]`)
                     break
                 default:
+                    if(!i?.type || !i?.data) break
                     ncmsg.push({ type: i.type, data: { ...i.data } })
                     raw_msg.push(`{${i?.type}:${(JSON.stringify(i?.data))?.slice(0, 300)}}`)
                     break
