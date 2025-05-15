@@ -25,7 +25,10 @@ class ncadapter {
         nccommon.info(`未登录`, `NC初始化`)
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
+        /** 事件监听 */
         this.napcat.on('message', async (data) => Bot.emit('message', await this.dealEvent(data)))
+        this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
+        this.napcat.on('request.friend', async (data) => Bot.emit('request.friend', await this.dealNotice(data, 'request.friend')))
         this.bot = {
             nickname,
             uin: user_id
@@ -51,6 +54,12 @@ class ncadapter {
             makeForwardMsg: (msgList) => this.makeForwardMsg(msgList),
             pickUser: this.pickUser.bind(this)
         }
+
+        /** 获取协议信息 */
+        let version_info = await this.napcat.get_version_info()
+        Bot[this.bot.uin].stat = { start_time: Date.now() / 1000, recv_msg_cnt: 0 }
+        Bot[this.bot.uin].apk = { display: 'QQNT', version: '0.0.0' } // napcat不传协议版本
+        Bot[this.bot.uin].version = { id: 'QQ', name: version_info.app_name, version: version_info.app_version }
 
         /** 合并Bot，兼容老旧不规范插件 */
         for (let i in Bot[this.bot.uin]) {
@@ -101,6 +110,33 @@ class ncadapter {
 
         return forwardMsg;
     }
+    /**
+     * 处理通知事件
+     * @param data 
+     */
+    async dealNotice(data, noticeType) {
+        switch (noticeType) {
+            case 'notice.friend_add':
+                nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `好友增加`, `${data.user_id}`)
+                let finfo = await this.napcat.get_friend_list()
+                finfo = finfo.find((f) => f.user_id == data.user_id)
+                Bot[this.bot.uin].fl.set(data.user_id, {
+                    class_id: 0,
+                    nickname: finfo.nickname,
+                    remark: finfo.remark || finfo.nickname,
+                    sex: finfo.sex,
+                    user_id: finfo.user_id,
+                    user_uid: ''
+                })
+                return this.dealEvent(data)
+        }
+    }
+    /**
+     * 处理事件
+     * 感谢止语姐姐留下的遗产(bushi)
+     * @param data 
+     * @returns 
+     */
     async dealEvent(data) {
         const { post_type, group_id, user_id, message_type, message_id, sender } = data
         /** 初始化e */
@@ -156,9 +192,14 @@ class ncadapter {
                     mute: async (time) => await api.set_group_ban(this.bot.uin, group_id, user_id, time)
                 }
                 e.group = { ...this.pickGroup(group_id) }
-                // let { role } = await api.get_group_member_info(this.bot.uin, group_id, this.bot.uin)
-                // if (role == 'admin') e.group.is_admin = true
-                // if (role == 'owner') e.group.is_owner = true
+                /** 快速撤回 */
+                e.recall = async () => {
+                    let res
+                    try {
+                        res = await this.napcat.delete_msg({ message_id })
+                    } catch (error) {  } // 报错不处理
+                    return res
+                }
             } else {
                 /** 私聊消息 */
                 e.log_message && nccommon.info(this.bot.uin, `<好友:${sender?.nickname || sender?.card}(${user_id})> -> ${e.log_message}`)
@@ -471,6 +512,11 @@ class ncadapter {
         return { message, ToString, raw_message, log_message, source, file }
     }
     pickUser(user_id) {
+        return {
+            makeForwardMsg: (msgs) => this.makeForwardMsg(msgs)
+        }
+    }
+    pickFriend(user_id) {
         return {
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs)
         }
