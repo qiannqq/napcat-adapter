@@ -51,7 +51,7 @@ class ncadapter {
             pickUser: this.pickUser.bind(this)
         }
 
-        /** 合并Bot，暴力覆盖 */
+        /** 合并Bot，兼容老旧不规范插件 */
         for (let i in Bot[this.bot.uin]) {
             try {
                 delete Bot[i]
@@ -65,7 +65,7 @@ class ncadapter {
     makeForwardMsg(data) {
         if (!Array.isArray(data)) data = [data];
         const forwardMsg = {
-            test: true, // 标记下，视为转发消息，防止套娃
+            test: true, // 标记下，视为转发消息，方便后面处理
             message: [],
             data: { type: 'test', text: 'forward', app: 'com.tencent.multimsg', meta: { detail: { news: [{ text: '' }] }, resid: '', uniseq: '', summary: '' } }
         };
@@ -81,14 +81,16 @@ class ncadapter {
 
         for (const item of itemsToProcess) {
             try {
-                // 关键修改：使用 item.nickname 和 item.user_id 替换原来的 this.nickname 和 this.id
+                // 使用 item.nickname 和 item.user_id
+                let news = {}
+                if(item.message.data?.meta?.detail?.news) news.news = item.message.data.meta.detail.news
                 forwardMsg.message.push({
                     type: 'node',
                     data: {
                         nickname: item.nickname || this.nickname, // 使用传入的 nickname
                         user_id: String(item.user_id || this.id), // 使用传入的 user_id 并转为字符串
                         content: item.message,
-                        news: item.message.data?.meta?.detail?.news || '聊天记录'
+                        ...news
                     }
                 });
             } catch (err) {
@@ -107,7 +109,7 @@ class ncadapter {
         /** 消息事件 */
         const messagePostType = async function () {
             /** 处理message、引用消息、toString、raw_message */
-            const { message, ToString, raw_message, log_message, source, file } = await this.getMessage(data.message, group_id)
+            const { message, ToString, raw_message, log_message, source, file, seq } = await this.getMessage(data.message, group_id)
 
             /** 通用数据 */
             e.message = message
@@ -129,9 +131,8 @@ class ncadapter {
                     group_name = group_id
                 }
 
-                /**笨比止语姐姐，nickname、seq、group_name 都没添加！ */
                 e.nickname = sender?.nickname || sender?.card
-                e.seq = message_id
+                e.seq = seq
                 e.group_name = raw_group_name
                 e.operator_id = user_id
                 nccommon.info(`${raw_group_name}(${group_id})`, `<=`, `${e.nickname}(${user_id})：${data.raw_message}`)
@@ -247,12 +248,12 @@ class ncadapter {
         return e
     }
     /**
-* 处理云崽的message
-* @param msg
-* @param group_id
-* @param reply 是否处理引用消息，默认处理
-* @return {Promise<{source: (*&{user_id, raw_message: string, reply: *, seq}), message: *[]}|{source: string, message: *[]}>}
-*/
+      * 处理云崽的message
+      * @param msg
+      * @param group_id
+      * @param reply 是否处理引用消息，默认处理
+      * @return {Promise<{source: (*&{user_id, raw_message: string, reply: *, seq}), message: *[]}|{source: string, message: *[]}>}
+      */
     async getMessage(msg, group_id, reply = true) {
         let file
         let source
@@ -481,7 +482,7 @@ class ncadapter {
             is_owner,
             sendMsg: async (msg) => await this.GsendMsg(group_id, msg),
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
-            // recallMsg,
+            recallMsg: async (msg_id) => await this.recallMsg(msg_id),
             // setName,
             // setAvatar,
             // muteAll,
@@ -506,6 +507,15 @@ class ncadapter {
             // getAtAllRemainder,
             // renew
         }
+    }
+    /**
+     * 撤回消息
+     * @param msg_id 
+     * @returns 
+     */
+    async recallMsg(msg_id) {
+        if(!msg_id) return false
+        return await this.napcat.delete_msg({ message_id: msg_id })
     }
     /**
      * 获取被引用的消息
@@ -561,17 +571,21 @@ class ncadapter {
         for (let item of msg) {
             try {
                 let { ncmsg: content } = await this.format(item.data.content)
-                let isSummary = false
+                let otherSet = {}
                 if (content[0].type === 'node') {
                     content = await this.dealNode(content)
-                    isSummary = true
+                    console.log(JSON.stringify(content, null, 3))
+                    otherSet.summary = '聊天记录' //嵌套消息不传入summary会导致发送失败
+                    if(item.data?.news[0]?.text) otherSet.news = item.data.news
+                    delete item.data?.news
                 }
+
                 nmsg.push({
                     type: item.type,
                     data: {
                         ...item.data,
                         content,
-                        summary: isSummary ? '聊天记录' : ''
+                        ...otherSet
                     }
                 })
             } catch (error) {
