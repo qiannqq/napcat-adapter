@@ -820,7 +820,7 @@ class ncadapter {
                     break
                 default:
                     ncmsg.push({ type: i.type, data: { ...i.data } })
-                    raw_msg.push(`{${i.type}:${(JSON.stringify(i.data)).slice(0, 300)}}`)
+                    raw_msg.push(`{${i?.type}:${(JSON.stringify(i?.data))?.slice(0, 300)}}`)
                     break
             }
         }
