@@ -7,3 +7,8 @@
 
 #### 安装方式
 暂无
+
+#### 致谢
+  - Lain-plugin 铃音插件，CV了部分消息处理源码
+  - NapCat.OneBot 这可是个好东西awa
+  - [Miao-Yunzai](https://gitee.com/yoimiya-kokomi) 这也是个好东西
