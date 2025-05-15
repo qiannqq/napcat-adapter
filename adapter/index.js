@@ -316,7 +316,8 @@ class ncadapter {
     }
     pickUser(user_id) {
         return {
-            makeForwardMsg: (msgs) => this.makeForwardMsg(msgs)
+            makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
+            getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
         }
     }
     pickFriend(user_id) {
@@ -343,17 +344,17 @@ class ncadapter {
             setAvatar: async (image) => await this.setAvatar(group_id, image),
             muteAll: async (enable) => await this.muteAll(group_id, enable),
             muteMember: async (user_id, enable = 600) => await this.muteMember(group_id, user_id, enable),
-            // muteAnony,
+            muteAnony: async (uid) => false, // 无效功能
             kickMember: async (user_id, msg, block) => await this.kickMember(group_id, user_id, block),
             pokeMember: async (user_id) => await this.pokeMember(group_id, user_id),
             setCard: async (uid, card) => await this.setCard(group_id, uid, card),
             setAdmin: async (uid, yes) => await this.setAdmin(group_id, uid, yes),
-            // setTitle,
-            // invite,
-            // quit,
-            // getAnonyInfo,
-            // allowAnony,
-            // getChatHistory,
+            setTitle: async (uid, title, duration = -1) => await this.setTitle(group_id, uid, title, duration),
+            invite: async (uid) => false, // 无效功能
+            quit: async () => await this.groupQuit(group_id),
+            getAnonyInfo: async () => false, // 无效功能
+            allowAnony: async () => false, // 无效功能
+            getChatHistory: async(seq, c) => await this.getChatHistory(group_id, seq, c),
             // markRead,
             // getFileUrl,
             // shareMusic,
@@ -363,6 +364,66 @@ class ncadapter {
             // getAtAllRemainder,
             // renew
         }
+    }
+    /**
+     * 获取群历史消息
+     * @param group_id 
+     * @param message_seq 
+     * @param count 
+     * @returns 
+     */
+    async getChatHistory(group_id, message_seq = 0, count = 20) {
+        let messages = []
+        try {
+            messages = await this.napcat.get_group_msg_history({ group_id, message_seq, count })
+        } catch (error) { }
+        if(messages.length === 0) return messages
+
+        let group = Bot[this.bot.uin].gl.get(group_id)
+
+        messages = messages.messages
+
+        messages = messages.map(async m => {
+          m.group_name = group?.group_name || group_id
+          m.atme = !!m.message.find(msg => msg.type === 'at' && msg.data?.qq == this.bot.uin)
+          let result = await nccommon.getMessage(m.message, null, true, this.bot.uin, this.napcat)
+          m = Object.assign(m, result)
+          return m
+        })
+        return await Promise.all(messages)
+    }
+    /**
+     * 退群 解散群聊
+     * @param group_id 
+     * @returns 
+     */
+    async groupQuit(group_id) {
+        let res = true
+        try {
+            await this.napcat.set_group_leave({ group_id, is_dismiss: true })
+        } catch(error) {
+            res = false
+            throw error
+        }
+        return res
+    }
+    /**
+     * 设置头衔
+     * @param group_id 
+     * @param user_id 
+     * @param title 
+     * @param duration 无效参数
+     * @returns 
+     */
+    async setTitle(group_id, user_id, title, duration = -1) {
+        let res = true
+        try {
+            await this.napcat.set_group_special_title({ group_id, user_id, special_title: title })
+        } catch (error) {
+            res = false
+            throw error
+        }
+        return res
     }
     /**
      * 设置管理员
