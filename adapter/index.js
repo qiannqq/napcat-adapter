@@ -189,7 +189,13 @@ class ncadapter {
                     /** 获取头像 */
                     getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
                     /** 禁言 */
-                    mute: async (time) => await api.set_group_ban(this.bot.uin, group_id, user_id, time)
+                    mute: async (time) => {
+                        let res
+                        try {
+                            res = await this.napcat.set_group_ban({ group_id, user_id, duration: time })
+                        } catch (error) { } //报错不处理
+                        return res
+                    }
                 }
                 e.group = { ...this.pickGroup(group_id) }
                 /** 快速撤回 */
@@ -538,10 +544,10 @@ class ncadapter {
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
             // setName,
             // setAvatar,
-            // muteAll,
-            // muteMember,
+            muteAll: async (enable) => await this.muteAll(group_id, enable),
+            muteMember: async (user_id, enable = 600) => await this.muteMember(group_id, user_id, enable),
             // muteAnony,
-            // kickMember,
+            kickMember: async (user_id, msg, block) => await this.kickMember(group_id, user_id, block),
             // pokeMember,
             // setCard,
             // setAdmin,
@@ -559,6 +565,40 @@ class ncadapter {
             // pickMember,
             // getAtAllRemainder,
             // renew
+        }
+    }
+    async kickMember(group_id, user_id, reject_add_request = false) {
+        let res
+        try {
+            res = await this.napcat.set_group_kick({ group_id, user_id, reject_add_request  })
+        } catch { }
+        return res
+    }
+    /**
+     * 群禁言
+     * @param gid 
+     * @param uid 
+     * @param duration 
+     * @returns 
+     */
+    async muteMember(gid, uid, duration) {
+        let res
+        try {
+            res = await this.napcat.set_group_ban({ group_id: gid, user_id: uid, duration })
+        } catch (error) { }
+        return res
+    }
+    /**
+     * 全体禁言
+     * @param gid 
+     * @param enable 
+     */
+    async muteAll(gid, enable) {
+        let res
+        try {
+            res = await this.napcat.set_group_whole_ban({ group_id: gid, enable })
+        } catch (error) {
+            
         }
     }
     /**
