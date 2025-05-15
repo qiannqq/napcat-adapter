@@ -1,5 +1,6 @@
 import { NCWebsocket, Structs } from "node-napcat-ts";
 import { nccommon } from "../lib/index.js";
+import fs from 'fs'
 
 class ncadapter {
     constructor(cfg) {
@@ -27,6 +28,7 @@ class ncadapter {
         this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
         this.napcat.on('request.friend', async (data) => Bot.emit('request.friend', await this.dealNotice(data, 'request.friend')))
         this.napcat.on('notice.group_admin', async (data) => Bot.emit('notice.group.admin', await this.dealNotice(data, 'notice.group_admin')))
+
         this.bot = {
             nickname,
             uin: user_id
@@ -338,14 +340,14 @@ class ncadapter {
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
             setName: async (name) => await this.setName(group_id, name),
-            // setAvatar,
+            setAvatar: async (image) => await this.setAvatar(group_id, image),
             muteAll: async (enable) => await this.muteAll(group_id, enable),
             muteMember: async (user_id, enable = 600) => await this.muteMember(group_id, user_id, enable),
             // muteAnony,
             kickMember: async (user_id, msg, block) => await this.kickMember(group_id, user_id, block),
-            // pokeMember,
-            // setCard,
-            // setAdmin,
+            pokeMember: async (user_id) => await this.pokeMember(group_id, user_id),
+            setCard: async (uid, card) => await this.setCard(group_id, uid, card),
+            setAdmin: async (uid, yes) => await this.setAdmin(group_id, uid, yes),
             // setTitle,
             // invite,
             // quit,
@@ -362,6 +364,85 @@ class ncadapter {
             // renew
         }
     }
+    /**
+     * 设置管理员
+     * @param group_id 群ID
+     * @param user_id 用户ID
+     * @param enable true or false
+     */
+    async setAdmin(group_id, user_id, enable = true) {
+        let res = true
+        try {
+            await this.napcat.set_group_admin({ group_id, user_id, enable })
+        } catch (error) {
+            res = false
+            throw error
+        }
+        return res
+    }
+    /**
+     * 改群名片
+     * @param group_id 
+     * @param user_id 
+     * @param card 
+     * @returns 
+     */
+    async setCard(group_id, user_id, card) {
+        let res = true
+        try {
+            await this.napcat.set_group_card({ group_id, user_id, card })
+        } catch (error) {
+            res = false
+            throw error
+        }
+        return res
+    }
+    /**
+     * 戳一戳
+     * @param group_id 
+     * @param user_id 
+     * @returns 
+     */
+    async pokeMember(group_id, user_id) {
+        let res = true
+        let gid = {}
+        if(group_id) gid.group_id = group_id
+        try {
+            await this.napcat.send_poke({ ...gid, user_id })
+        } catch (error) {
+            res = false
+            throw error
+        }
+        return res
+    }
+    /**
+     * 改群头像
+     * @param group_id 
+     * @param image buffer、base64、url、file
+     * @returns 
+     */
+    async setAvatar(group_id, image) {
+        if(Buffer.isBuffer(image)) {
+            image = image.toString('base64')
+        } else if(typeof image == 'string' && nccommon.isLocalPath(image)) {
+            image = fs.readFileSync(image, 'base64url')
+            image = `base64://${image}`
+        }
+        let res = true
+        try {
+            res = await this.napcat.set_group_portrait({ group_id, file: image })
+        } catch (error) {
+            res = false
+            throw error
+        }
+        return res
+    }
+    /**
+     * 改群名
+     * @param group_id 
+     * @param name 
+     * @returns 
+     */
     async setName(group_id, name) {
         let res = true
         try {
@@ -374,7 +455,8 @@ class ncadapter {
     pickMember(gid, uid) {
         let info = (Bot[this.bot.uin].gml.get(gid)).get(uid)
         return {
-            info
+            info,
+            ...info
         }
     }
     async kickMember(group_id, user_id, reject_add_request = false) {
