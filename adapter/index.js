@@ -4,9 +4,6 @@ import url from "url";
 import path from 'path'
 import fs from 'fs'
 
-const __filename = url.fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
 class ncadapter {
     constructor(cfg) {
         this.cfg = cfg
@@ -25,20 +22,21 @@ class ncadapter {
      * NC初始化
      */
     async init() {
-        nccommon.info(`未登录`, `NC初始化`)
+        nccommon.info({ nickname: 'NapCat', uin: '未连接' }, `NC初始化`)
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
         this.napcat.on('message', async (data) => Bot.emit('message', await this.dealEvent(data)))
-        this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
+        // this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
         this.napcat.on('request.friend', async (data) => Bot.emit('request.friend', await this.dealNotice(data, 'request.friend')))
-        this.napcat.on('notice.group_admin', async (data) => Bot.emit('notice.group.admin', await this.dealNotice(data, 'notice.group_admin')))
+        // this.napcat.on('notice.group_admin', async (data) => Bot.emit('notice.group.admin', await this.dealNotice(data, 'notice.group_admin')))
+        this.napcat.on('notice', async (data) => Bot.emit('notice', await this.dealNotice(data, 'notice')))
 
         this.bot = {
             nickname,
             uin: user_id
         }
-        nccommon.info(`${nickname}${user_id}`, `已连接`)
+        nccommon.info(this.bot, `已连接`)
         // 调试，全局声明napcat
         global.napcat = this.napcat
         
@@ -49,8 +47,7 @@ class ncadapter {
     async pb() {
         let icqq
         for (const i of ["Model", "node_modules"]) try {
-            let yunzaiPath = path.resolve(process.cwd(), i)
-            const dir = `${yunzaiPath}/icqq/`
+            const dir = `${path.resolve(process.cwd(), i)}/icqq/`
             fs.statSync(dir)
             icqq = (await import(`file://${dir}lib/core/index.js`)).default
             break
@@ -110,7 +107,7 @@ class ncadapter {
             avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${this.bot.uin}`,
             pickGroup: (group_id) => this.pickGroup(Number(group_id)),
             makeForwardMsg: (msgList) => this.makeForwardMsg(msgList),
-            pickUser: this.pickUser.bind(this),
+            pickUser: (user_id) => this.pickUser(user_id),
             setEssenceMessage: (message_id) => this.addEssence(message_id),
             removeEssenceMessage: (message_id) => this.removeEssence(message_id)
         }
@@ -174,10 +171,13 @@ class ncadapter {
      * 处理通知事件
      * @param data 
      */
-    async dealNotice(data, noticeType) {
-        switch (noticeType) {
-            case 'notice.friend_add':
-                nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `好友增加`, `${data.user_id}`)
+    async dealNotice(data) {
+        nccommon.debug(this.bot, `收到通知事件`)
+        nccommon.debug(this.bot, data)
+        let minfo
+        switch (data.notice_type) {
+            case 'friend_add':
+                nccommon.info(this.bot, `好友增加`, `${data.user_id}`)
                 let finfo = await this.napcat.get_friend_list()
                 finfo = finfo.find((f) => f.user_id == data.user_id)
                 Bot[this.bot.uin].fl.set(data.user_id, {
@@ -189,9 +189,9 @@ class ncadapter {
                     user_uid: ''
                 })
                 return this.dealEvent(data)
-            case 'notice.group_admin':
-                nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`)
-                let minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
+            case 'group_admin':
+                nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`)
+                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
 
@@ -201,8 +201,37 @@ class ncadapter {
                     user_uid: '',
                     update_time: 0
                 })
+                data.sub_type = 'admin'
+                return this.dealEvent(data)
+            case 'group_increase':
+                nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`)
+                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
+
+                minfo = minfo.find(m => m.user_id == data.user_id);
+
+                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, {
+                    ...minfo,
+                    shutup: minfo.shut_up_timestamp,
+                    user_uid: '',
+                    update_time: 0
+                });
+
+                data.sub_type = 'increase'
+                return this.dealEvent(data)
+            case 'group_decrease':
+                let quitMsg
+                if(data.sub_type == 'leave') {
+                    quitMsg = `退出`
+                } else {
+                    quitMsg = `被${data.operator_id}踢出`
+                }
+                nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
+                (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
+                data.sub_type = 'decrease'
                 return this.dealEvent(data)
         }
+        // 未知事件直接先处理防止报错
+        return this.dealEvent(data)
     }
     /**
      * 处理事件
@@ -245,7 +274,7 @@ class ncadapter {
                 e.seq = seq
                 e.group_name = raw_group_name
                 e.operator_id = user_id
-                nccommon.info(`${raw_group_name}(${group_id})`, `<=`, `${e.nickname}(${user_id})：${data.raw_message}`)
+                nccommon.info(this.bot, `${raw_group_name}(${group_id})`, `<=`, `${e.nickname}(${user_id})：${data.raw_message}`)
                 /** 手动构建member */
                 e.member = {
                     info: {
@@ -281,7 +310,7 @@ class ncadapter {
                 }
             } else {
                 /** 私聊消息 */
-                e.log_message && nccommon.info(this.bot.uin, `<好友:${sender?.nickname || sender?.card}(${user_id})> -> ${e.log_message}`)
+                e.log_message && nccommon.info(this.bot, `<=`, `私聊:${sender?.nickname || sender?.card}(${user_id})：${e.log_message}`)
                 e.friend = { ...this.pickFriend(user_id) }
             }
         }
@@ -357,11 +386,11 @@ class ncadapter {
                 break
         }
         /** 快速回复 */
-        e.reply = async (msg, quote) => {
+        e.reply = async (msg, quote, recall = {}) => {
             if (quote) {
-                return await this.GsendMsg(group_id, msg, e.message_id)
+                return await this.GsendMsg(group_id, msg, message_id, user_id, recall)
             } else {
-                return await this.GsendMsg(group_id, msg)
+                return await this.GsendMsg(group_id, msg, null, user_id, recall)
             }
         }
         /** 获取对应用户头像 */
@@ -377,11 +406,14 @@ class ncadapter {
     pickUser(user_id) {
         return {
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
-            getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
+            getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
+            recallMsg: async (msg_id) => await this.recallMsg(msg_id),
         }
     }
     pickFriend(user_id) {
+        let pickUser = this.pickUser(user_id)
         return {
+            ...pickUser,
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs)
         }
     }
@@ -390,9 +422,9 @@ class ncadapter {
      * @param group_id 
      */
     pickGroup(group_id) {
-        let is_admin = (Bot[this.bot.uin].gml.get(group_id))?.get(this.bot.uin)?.role === 'admin'
-        let is_owner = (Bot[this.bot.uin].gml.get(group_id))?.get(this.bot.uin)?.role === 'owner'
-        let name = (Bot[this.bot.uin].gl.get(group_id))?.group_name || group_id
+        let is_admin = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'admin'
+        let is_owner = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'owner'
+        let name = (Bot[this.bot.uin]?.gl.get(group_id))?.group_name || group_id
         return {
             name,
             is_admin,
@@ -738,8 +770,29 @@ class ncadapter {
      * @param msgid 引用的消息ID，node等特殊消息无效
      * @returns { message_id }
      */
-    async GsendMsg(group_id, msg, msgid = false) {
+    async GsendMsg(group_id, msg, msgid = false, user_id, recall) {
         let { ncmsg, raw_msg, node } = await nccommon.format(msg, msgid)
+
+        let forg
+        if(group_id) {
+            forg = {
+                msg: `Group(${group_id})`,
+                api: 'send_group_msg',
+                forward: 'send_group_forward_msg',
+                apiBody: {
+                    group_id
+                }
+            }
+        } else {
+            forg = {
+                msg: `Private(${user_id})`,
+                api: 'send_private_msg',
+                forward: 'send_private_forward_msg',
+                apiBody: {
+                    user_id
+                }
+            }
+        }
 
         if (node) {
             ncmsg = await nccommon.dealNode(ncmsg)
@@ -750,23 +803,23 @@ class ncadapter {
             if (node) {
                 let news = {}
                 if (msg.data.meta.detail.news[0].text) news = { news: msg.data.meta.detail.news } // 当news不存在时，不传递news避免显示异常
-                let body = { group_id, message: ncmsg, ...news }
-                res = await this.napcat.send_group_forward_msg(body)
+                let body = { ...forg.apiBody, message: ncmsg, ...news }
+                res = await this.napcat[forg.forward](body)
             } else {
-                res = await this.napcat.send_group_msg({ group_id, message: ncmsg })
+                res = await this.napcat[forg.api]({ ...forg.apiBody, message: ncmsg })
             }
         } catch (error) {
-            nccommon.error(`${this.bot.nickname}(${this.bot.uin})`, `发送消息错误`)
+            nccommon.error(this.bot, `发送消息错误`)
             throw error
         }
         if (res) {
-            nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `send Group(${group_id}):`, raw_msg.join(' '))
+            nccommon.info(this.bot, `send ${forg.msg}:`, raw_msg.join(' '))
         }
         return res
     }
     async LoadAll() {
         await Promise.all([this.loadGroups(), this.loadFriends()])
-        nccommon.info(`${this.bot.nickname}(${this.bot.uin})`, `欢迎，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
+        nccommon.info(this.bot, `欢迎，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
     }
     /**
      * 加载群列表 加载群成员缓存列表
@@ -829,7 +882,7 @@ class ncadapter {
             }
             Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
         }
-        nccommon.debug(`${this.bot.nickname}(${this.bot.uin})`, `加载群成员列表完成`)
+        nccommon.debug(this.bot, `加载群成员列表完成`)
     }
     /**
      * 加载好友列表
@@ -846,7 +899,7 @@ class ncadapter {
                 user_uid: ''
             })
         }
-        nccommon.debug(`${this.bot.uin}(${this.bot.nickname})`, `好友列表加载完成`)
+        nccommon.debug(this.bot, `好友列表加载完成`)
     }
 }
 
