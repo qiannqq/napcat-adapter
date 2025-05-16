@@ -355,14 +355,63 @@ class ncadapter {
             getAnonyInfo: async () => false, // 无效功能
             allowAnony: async () => false, // 无效功能
             getChatHistory: async(seq, c) => await this.getChatHistory(group_id, seq, c),
-            // markRead,
-            // getFileUrl,
-            // shareMusic,
-            // getMemberMap,
-            // getAvatarUrl,
+            markRead: async(seq = 0) => await this.makeRead({ group_id }),
+            // getFileUrl, 没整明白，暂时不写
+            // shareMusic, 没整明白，暂时不写
+            getMemberMap: async(no_cache = false) => await this.getMemberMap(group_id, no_cache),
+            getAvatarUrl: (size = 0, history = 0) => this.getAvatarUrl(group_id, size, history),
             pickMember: (uid) => this.pickMember(group_id, uid),
-            // getAtAllRemainder,
-            // renew
+            getAtAllRemainder: async () => await this.getAtAllRemainder(group_id),
+            renew: async () => Bot[this.bot.uin].gl.get(group_id), // 无效功能，用gl代替
+        }
+    }
+    /**
+     * 获取at全体成员 剩余次数
+     * @param group_id 
+     * @returns 
+     */
+    async getAtAllRemainder(group_id) {
+        let res
+        try {
+            res = await this.napcat.get_group_at_all_remain({ group_id })
+        } catch (error) { }
+        return res.remain_at_all_count_for_uin
+    }
+
+    /**
+     * 取群头
+     * @param group_id 
+     * @param size 
+     * @param history 
+     * @returns 
+     */
+    getAvatarUrl(group_id, size, history) {
+        let history_url = group_id
+        if(history !== 0) {
+            history_url = `${group_id}_${history}`
+        }
+        return `https://p.qlogo.cn/gh/${group_id}/${history_url}/${size}`
+    }
+    /**
+     * 获取群成员列表
+     * @param gid 
+     * @param no_cache 
+     * @returns 
+     */
+    async getMemberMap(gid, no_cache = false) {
+        let gml = Bot[this.bot.uin].gml.get(gid)
+        // no_cache 暂时不写，把其他的都整的差不多了再说
+        return gml
+    }
+    /**
+     * 标记消息为已读
+     * @param id 为对象，其中包含group_id或user_id
+     */
+    async makeRead(id) {
+        try {
+            await this.napcat.mark_msg_as_read(id)
+        } catch (error) {
+            throw error
         }
     }
     /**
