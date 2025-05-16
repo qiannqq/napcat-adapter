@@ -363,7 +363,25 @@ class ncadapter {
             pickMember: (uid) => this.pickMember(group_id, uid),
             getAtAllRemainder: async () => await this.getAtAllRemainder(group_id),
             renew: async () => Bot[this.bot.uin].gl.get(group_id), // 无效功能，用gl代替
+            addEssence: async (seq, rand) => await this.addEssence(seq, rand),
         }
+    }
+    /**
+     * 群加精化
+     * @param seq
+     * @param rand 
+     * @returns 
+     */
+    async addEssence(seq, rand) {
+        let res = `设置精华成功`
+        try {
+            await this.napcat.set_essence_msg({ message_id: seq })
+        } catch (error) {
+            nccommon.error(this.bot.uin, `设置精华失败`)
+            nccommon.error(this.bot.uin, error)
+            throw error
+        }
+        return res
     }
     /**
      * 获取at全体成员 剩余次数
