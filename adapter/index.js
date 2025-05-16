@@ -52,7 +52,9 @@ class ncadapter {
             avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${this.bot.uin}`,
             pickGroup: (group_id) => this.pickGroup(Number(group_id)),
             makeForwardMsg: (msgList) => this.makeForwardMsg(msgList),
-            pickUser: this.pickUser.bind(this)
+            pickUser: this.pickUser.bind(this),
+            setEssenceMessage: (message_id) => this.addEssence(message_id),
+            removeEssenceMessage: (message_id) => this.removeEssence(message_id)
         }
 
         /** 获取协议信息 */
@@ -364,7 +366,26 @@ class ncadapter {
             getAtAllRemainder: async () => await this.getAtAllRemainder(group_id),
             renew: async () => Bot[this.bot.uin].gl.get(group_id), // 无效功能，用gl代替
             addEssence: async (seq, rand) => await this.addEssence(seq, rand),
+            removeEssence: async (seq, rand) => await this.removeEssence(seq, rand)
         }
+    }
+    /**
+     * 移除群精华
+     * @param seq 
+     * @param rand 
+     * @returns 
+     */
+    async removeEssence(seq, rand) {
+        let res = `移除群精华成功`
+        try {
+            await this.napcat.delete_essence_msg({ message_id: seq })
+        } catch (error) {
+            res = `移除群精华失败`
+            nccommon.error(this.bot.uin, res)
+            nccommon.error(this.bot.uin, error)
+            throw error
+        }
+        return res
     }
     /**
      * 群加精化
