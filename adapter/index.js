@@ -1,6 +1,11 @@
 import { NCWebsocket, Structs } from "node-napcat-ts";
 import { nccommon } from "../lib/index.js";
+import url from "url";
+import path from 'path'
 import fs from 'fs'
+
+const __filename = url.fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 class ncadapter {
     constructor(cfg) {
@@ -36,11 +41,64 @@ class ncadapter {
         nccommon.info(`${nickname}${user_id}`, `已连接`)
         // 调试，全局声明napcat
         global.napcat = this.napcat
+        
+        await this.pb()
         await this.BotInit()
     }
+    /** 开启一个可以自己编写新魔法的奇妙魔法阵 */
+    async pb() {
+        let icqq
+        for (const i of ["Model", "node_modules"]) try {
+            let yunzaiPath = path.resolve(process.cwd(), i)
+            const dir = `${yunzaiPath}/icqq/`
+            fs.statSync(dir)
+            icqq = (await import(`file://${dir}lib/core/index.js`)).default
+            break
+        } catch (err) {
+            icqq = err
+        }
+        Bot.icqq = icqq
+    }
+    domain() {
+        return [
+            "aq.qq.com",
+            "buluo.qq.com",
+            "connect.qq.com",
+            "docs.qq.com",
+            "game.qq.com",
+            "gamecenter.qq.com",
+            "haoma.qq.com",
+            "id.qq.com",
+            "kg.qq.com",
+            "mail.qq.com",
+            "mma.qq.com",
+            "office.qq.com",
+            "openmobile.qq.com",
+            "qqweb.qq.com",
+            "qun.qq.com",
+            "qzone.qq.com",
+            "ti.qq.com",
+            "v.qq.com",
+            "vip.qq.com",
+            "y.qq.com"
+        ]
+    }
     async BotInit() {
+        let botck = {}
+        let botbkn
+
+        /** 并发，不然慢的要死 */
+        await Promise.all(this.domain().map(async (i) => {
+            const ck = await this.napcat.get_cookies({ domain: i });
+            botck[i] = ck.cookies;
+            if (ck.bkn) {
+                botbkn = ck.bkn;
+            }
+        }));
+
         Bot[this.bot.uin] = {
-            bkn: 0,
+            bkn: botbkn,
+            cookies: botck,
             fl: new Map(),
             gl: new Map(),
             gml: new Map(),
@@ -366,8 +424,25 @@ class ncadapter {
             getAtAllRemainder: async () => await this.getAtAllRemainder(group_id),
             renew: async () => Bot[this.bot.uin].gl.get(group_id), // 无效功能，用gl代替
             addEssence: async (seq, rand) => await this.addEssence(seq, rand),
-            removeEssence: async (seq, rand) => await this.removeEssence(seq, rand)
+            removeEssence: async (seq, rand) => await this.removeEssence(seq, rand),
+            announce: async(content) => await this.announce(group_id, content),
         }
+    }
+    /**
+     * 发送群公告
+     * @param group_id 
+     * @param content 
+     * @returns 
+     */
+    async announce(group_id, content) {
+        let res = true
+        try {
+            await this.napcat._send_group_notice({ group_id, content })
+        } catch(error) {
+            res = false
+            throw error
+        }
+        return res
     }
     /**
      * 移除群精华
