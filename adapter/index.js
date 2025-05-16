@@ -563,7 +563,7 @@ class ncadapter {
         return res
     }
     pickMember(gid, uid) {
-        let info = (Bot[this.bot.uin].gml.get(gid)).get(uid)
+        let info = (Bot[this.bot.uin].gml?.get(gid))?.get(uid)
         return {
             info,
             ...info
