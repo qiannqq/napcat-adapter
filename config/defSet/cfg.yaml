@@ -1,0 +1,11 @@
+# ws地址
+baseUrl: "ws://111.170.18.131:32334"
+# Token ↓
+# accessToken: "your token"
+# 是否需要在触发 socket.error 时抛出错误, 默认关闭
+throwPromise: false
+# ↓ 自动重连(可选)
+reconnection:
+  enable: true
+  attempts: 10
+  delay: 5000

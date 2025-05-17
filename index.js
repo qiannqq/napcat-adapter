@@ -1,7 +1,6 @@
 import ncadapter from "./adapter/index.js";
+import { cfg } from './lib/index.js'
 
-const nc = new ncadapter({
-  baseUrl: "ws://127.0.0.1:2958",
-});
+const nc = new ncadapter(cfg());
 
 nc.init()
