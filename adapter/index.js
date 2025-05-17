@@ -112,6 +112,7 @@ class ncadapter {
             makeForwardMsg: (msgList) => this.makeForwardMsg(msgList),
             pickUser: (user_id) => this.pickUser(user_id),
             pickFriend: (user_id) => this.pickFriend(user_id),
+            pickMember: (gid, uid) => this.pickMember(gid, uid),
             setEssenceMessage: (message_id) => this.addEssence(message_id),
             removeEssenceMessage: (message_id) => this.removeEssence(message_id),
             getMsg: async (message_id) => {
@@ -1147,6 +1148,7 @@ class ncadapter {
             for (let item of memberInfo) {
                 icMemberInfo.set(item.user_id, {
                     ...item,
+                    card: item.card || item.nickname,
                     shutup_time: item.shut_up_timestamp,
                     user_uid: ``,
                     update_time: 0
