@@ -165,12 +165,16 @@ class ncadapter {
         Bot[this.bot.uin].version = { id: 'QQ', name: version_info.app_name, version: version_info.app_version }
 
         /** 合并Bot，兼容老旧不规范插件 */
-        for (let i in Bot[this.bot.uin]) {
-            try {
-                delete Bot[i]
-                Bot[i] = Bot[this.bot.uin][i]
-            } catch (error) { }
-        }
+        /** 或许有其他解决方法 */
+        // for (let i in Bot[this.bot.uin]) {
+        //     try {
+        //         delete Bot[i]
+        //         Bot[i] = Bot[this.bot.uin][i]
+        //     } catch (error) { }
+        // }
+
+        Bot.nickname = this.bot.nickname
+        Bot.uin = this.bot.uin
 
         /** 加载资源 */
         await this.LoadAll()
