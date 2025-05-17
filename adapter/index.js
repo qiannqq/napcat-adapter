@@ -85,6 +85,7 @@ class ncadapter {
         let botbkn
 
         /** 并发，不然慢的要死 */
+        nccommon.debug(this.bot, '加载cookies...')
         await Promise.all(this.domain().map(async (i) => {
             const ck = await this.napcat.get_cookies({ domain: i });
             botck[i] = ck.cookies;
@@ -92,6 +93,7 @@ class ncadapter {
                 botbkn = ck.bkn;
             }
         }));
+        nccommon.debug(this.bot, '加载cookies完成')
 
         Bot[this.bot.uin] = {
             bkn: botbkn,
@@ -108,8 +110,22 @@ class ncadapter {
             pickGroup: (group_id) => this.pickGroup(Number(group_id)),
             makeForwardMsg: (msgList) => this.makeForwardMsg(msgList),
             pickUser: (user_id) => this.pickUser(user_id),
+            pickFriend: (user_id) => this.pickFriend(user_id),
             setEssenceMessage: (message_id) => this.addEssence(message_id),
-            removeEssenceMessage: (message_id) => this.removeEssence(message_id)
+            removeEssenceMessage: (message_id) => this.removeEssence(message_id),
+            getMsg: async (message_id) => {
+                let info = await this.napcat.get_msg({ message_id });
+                if(!info) throw new Error(`消息不存在`);
+                if(info?.group_id) {
+                    if(info.message?.length == 0) info.message_id = Math.random().toString().slice(2,12); // 消息不存在则随机生成一个msgid
+                    let group = await Bot[this.bot.uin].gl.get(info.group_id)
+                    info.group_name = group?.group_name || info.group_id
+                    info.atme = !!info.message.find(i => i.type === 'at' && i.data?.qq === this.bot.uin)
+                }
+                let res = await nccommon.getMessage(info.message, null, true, this.bot.uin, this.napcat)
+                info = Object.assign(info, res)
+                return info
+            }
         }
 
         /** 获取协议信息 */
@@ -179,7 +195,8 @@ class ncadapter {
             case 'friend_add':
                 nccommon.info(this.bot, `好友增加`, `${data.user_id}`)
                 let finfo = await this.napcat.get_friend_list()
-                finfo = finfo.find((f) => f.user_id == data.user_id)
+                finfo = finfo.find((f) => f.user_id == data.user_id);
+                if(!finfo) return this.dealEvent(data) //单向好友
                 Bot[this.bot.uin].fl.set(data.user_id, {
                     class_id: 0,
                     nickname: finfo.nickname,
@@ -408,13 +425,46 @@ class ncadapter {
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
+            addFriendBack: async (seq, remark = '') => await this.addFriendBack(seq, remark),
+            sendMsg: async (msg) => await this.GsendMsg(null, msg, null, user_id),
+            getChatHistory: async (seq, c) => await this.getChatHistory(user_id, seq, c, true),
+            thumbUp: async(times) => await this.thumbUp(user_id, times),
+            getSimpleInfo: async() => await this.getSimpleInfo(user_id),
+            markRead: async(times) => await this.makeRead(user_id),
+            setFriendReq: async(seq, yes = true, remark = '', block = false) => await this.setFriendReq(seq, yes, remark),
+            setGroupReq: async(gid, seq, yes = true, reason = '', block = false) => await this.setGroupReq(seq, yes, reason),
+            setGroupInvite: async(gid, seq, yes = true, block = false) => await this.setGroupReq(seq, yes, '')
         }
     }
     pickFriend(user_id) {
         let pickUser = this.pickUser(user_id)
         return {
             ...pickUser,
-            makeForwardMsg: (msgs) => this.makeForwardMsg(msgs)
+            makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
+            poke: async() => await this.pokeMember(null, user_id),
+            delete: async(block = true) => {
+                let res = true
+                try {
+                    await this.napcat.delete_friend({ user_id, temp_block: block, temp_both_del: true })
+                } catch (error) {
+                    res = false
+                }
+                return res
+            },
+            searchSameGroup: async() => {
+                let gls = Array.from(Bot.gl.keys())
+                let gtq = Promise.all(gls.map( i => {
+                    let info = (Bot.gml.get(i)).get(user_id)
+                    let groupName = Bot.gl.get(i).group_name
+                    if(info) {
+                        return {
+                            groupName: groupName,
+                            Group_Id: info.group_id
+                        }
+                    }
+                } ))
+                return (await gtq).filter(item => item !== undefined)
+            }
         }
     }
     /**
@@ -459,6 +509,108 @@ class ncadapter {
             removeEssence: async (seq, rand) => await this.removeEssence(seq, rand),
             announce: async(content) => await this.announce(group_id, content),
         }
+    }
+    /**
+     * 处理加群请求
+     * @param flag 
+     * @param approve 
+     * @param reason 
+     */
+    async setGroupReq(flag, approve, reason) {
+        let res = true
+        try {
+            await this.napcat.set_group_add_request({ flag, approve, reason })
+        } catch (error) {
+            res = false
+        }
+        return res
+    }
+    /**
+     * 处理好友请求
+     * @param flag 
+     * @param approve 
+     * @param remark 
+     * @returns 
+     */
+    async setFriendReq(flag, approve, remark) {
+        let res = true
+        try {
+            await this.napcat.set_friend_add_request({ flag, approve, remark })
+        } catch(err) {
+            res = false
+        }
+        return res
+    }
+    /**
+     * 已读
+     * @param user_id 
+     * @param times 
+     * @returns 
+     */
+    async markRead(user_id, times) {
+        let res = true
+        try {
+            await this.napcat.mark_private_msg_as_read({ user_id })
+        } catch (error) {
+            res = false
+        }
+        return res
+    }
+    /**
+     * 你谁
+     * @param user_id 
+     * @returns 
+     */
+    async getSimpleInfo(user_id){
+        let res
+        try {
+            res = await this.napcat.get_stranger_info({ user_id })
+        } catch (error) {
+            return
+        }
+        return {
+            class_id: 0,
+            ...res,
+            user_uid: ''
+        }
+    }
+    /**
+     * 赞
+     * @param user_id 
+     * @param times 
+     * @returns 
+     */
+    async thumbUp(user_id, times) {
+        let res = true
+        try {
+            await this.napcat.send_like({ user_id, times })
+        } catch (error) {
+            res = false
+        }
+        return res
+    }
+    /**
+     * 回添双向好友（不建议开启允许任何人添加或填写答案自动同意，napcat没有针对单向好友的事件通知，拿不到seq，这是通过发包来实现的，因为我也拿不到seq所以我没做测试不知道能不能用）
+     * @param seq 好友申请序号
+     * @param remark 备注
+     * @returns 
+     */
+    async addFriendBack(seq, remark = '') {
+        let body = Buffer.from(Bot.icqq.pb.encode({
+            1: 1,
+            2: Number(seq),
+            3: Number(this.bot.uin),
+            4: 10,
+            5: 2004,
+            6: 1,
+            7: 0,
+            8: {
+                1: 2,
+                52: String(remark)
+            }
+        })).toString('hex')
+        let res = await this.napcat.send_packet({ cmd: 'ProfileService.Pb.ReqSystemMsgAction.Friend', data: body });
+        return (Bot.icqq.pb.decode(Buffer.from(res, 'hex')))[1][1] === 0;
     }
     /**
      * 发送群公告
@@ -561,25 +713,42 @@ class ncadapter {
         }
     }
     /**
-     * 获取群历史消息
+     * 获取历史消息
      * @param group_id 
      * @param message_seq 
      * @param count 
      * @returns 
      */
-    async getChatHistory(group_id, message_seq = 0, count = 20) {
+    async getChatHistory(group_id, message_seq = 0, count = 20, isPrivate = false) {
+        let forg
+        if(isPrivate) {
+            forg = {
+                body: {
+                    user_id: group_id,
+                },
+                api: 'get_friend_msg_history'
+            }            
+        } else {
+            forg = {
+                body: {
+                    group_id,
+                },
+                api: 'get_group_msg_history'
+            }
+        }
         let messages = []
         try {
-            messages = await this.napcat.get_group_msg_history({ group_id, message_seq, count })
+            messages = await this.napcat[forg.api]({ ...forg.body, message_seq, count })
         } catch (error) { }
         if(messages.length === 0) return messages
 
-        let group = Bot[this.bot.uin].gl.get(group_id)
+        let group
+        if(!isPrivate) group = Bot[this.bot.uin].gl.get(group_id)
 
         messages = messages.messages
 
         messages = messages.map(async m => {
-          m.group_name = group?.group_name || group_id
+         if(!isPrivate) m.group_name = group?.group_name || group_id
           m.atme = !!m.message.find(msg => msg.type === 'at' && msg.data?.qq == this.bot.uin)
           let result = await nccommon.getMessage(m.message, null, true, this.bot.uin, this.napcat)
           m = Object.assign(m, result)
