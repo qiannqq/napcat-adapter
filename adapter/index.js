@@ -26,9 +26,12 @@ class ncadapter {
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
-        this.napcat.on('message', async (data) => Bot.emit('message', await this.dealEvent(data)))
-        this.napcat.on('request', async (data) => Bot.emit('request', await this.dealRequest(data, 'request')))
-        this.napcat.on('notice', async (data) => Bot.emit('notice', await this.dealNotice(data, 'notice')))
+        this.napcat.on('message', (data) => {
+            if(data?.group_id) return this.dealEvent(data, ['message', 'message.group'])
+            return this.dealEvent(data, ['message', 'message.private'])
+         })
+        this.napcat.on('request', (data) => this.dealRequest(data))
+        this.napcat.on('notice', (data) => this.dealNotice(data))
 
         this.bot = {
             nickname,
@@ -224,22 +227,27 @@ class ncadapter {
     async dealRequest(data) {
         nccommon.debug(this.bot, `收到request事件`)
         nccommon.debug(this.bot, data)
+        let event
         switch (data.request_type) {
             case 'friend':
+                event = ['request', 'request.friend']
                 nccommon.info(this.bot, `收到好友请求`, `${data.user_id}`)
                 data.sub_type = 'add'
                 data.seq = data.flag
-                return this.dealEvent(data)
+                break
             case 'group':
+                event = ['request', 'request.group']
                 if(data.sub_type === 'add') {
+                    event.push('request.group.add')
                     nccommon.info(this.bot, `收到加群申请`, `${data.user_id}申请加入${data.group_id}`)
                 } else {
+                    event.push('request.group.invite')
                     nccommon.info(this.bot, `收到邀请加群`, `${data.user_id}邀请机器人加入${data.group_id}`)
                 }
                 data.seq = data.flag
-                return this.dealEvent(data)
+                break
         }
-        return this.dealEvent(data)
+        return this.dealEvent(data, event)
     }
     /**
      * 处理通知事件
@@ -249,12 +257,14 @@ class ncadapter {
         nccommon.debug(this.bot, `收到通知事件`)
         nccommon.debug(this.bot, data)
         let minfo
+        let event  = []
         switch (data.notice_type) {
             case 'friend_add':
+                event = ['notice', 'notice.friend', 'notice.friend.increase']
                 nccommon.info(this.bot, `好友增加`, `${data.user_id}`)
                 let finfo = await this.napcat.get_friend_list()
                 finfo = finfo.find((f) => f.user_id == data.user_id);
-                if(!finfo) return this.dealEvent(data) //单向好友
+                if(!finfo) break //单向好友
                 Bot[this.bot.uin].fl.set(data.user_id, {
                     class_id: 0,
                     nickname: finfo.nickname,
@@ -263,8 +273,9 @@ class ncadapter {
                     user_id: finfo.user_id,
                     user_uid: ''
                 })
-                return this.dealEvent(data)
+                break
             case 'group_admin':
+                event = ['notice', 'notice.group', 'notice.group.admin']
                 nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`)
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
@@ -277,8 +288,9 @@ class ncadapter {
                     update_time: 0
                 })
                 data.sub_type = 'admin'
-                return this.dealEvent(data)
+                break
             case 'group_increase':
+                event = ['notice', 'notice.group', 'notice.group.increase']
                 nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`)
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
@@ -292,8 +304,9 @@ class ncadapter {
                 });
 
                 data.sub_type = 'increase'
-                return this.dealEvent(data)
+                break
             case 'group_decrease':
+                event = ['notice', 'notice.group', 'notice.group.decrease']
                 let quitMsg
                 if(data.sub_type == 'leave') {
                     quitMsg = `退出`
@@ -303,7 +316,7 @@ class ncadapter {
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
                 (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
                 data.sub_type = 'decrease'
-                return this.dealEvent(data)
+                break
             case 'group_ban':
                 if(data.sub_type) {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}禁言${data.duration}秒`)
@@ -314,10 +327,9 @@ class ncadapter {
                 minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
                 minfo.shutup_time = (Date.now() / 1000) + data.duration;
                 minfo.shutup = data.duration;
-                return this.dealEvent(data)
+                break
         }
-        // 未知事件直接先处理防止报错
-        return this.dealEvent(data)
+        this.dealEvent(data, event)
     }
     /**
      * 处理事件
@@ -325,7 +337,8 @@ class ncadapter {
      * @param data 
      * @returns 
      */
-    async dealEvent(data) {
+    async dealEvent(data, event = []) {
+        if(event?.length == 0) return;
         const { post_type, group_id, user_id, message_type, message_id, sender } = data
         /** 初始化e */
         let e = data
@@ -489,7 +502,10 @@ class ncadapter {
 
         /** 某些事件需要e.bot，走监听器没有。 */
         e.bot = Bot[this.bot.uin]
-        return e
+
+        Promise.all(event.map(i => {
+            Bot.emit(i, e)
+        }))
     }
     pickUser(user_id) {
         return {
