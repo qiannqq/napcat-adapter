@@ -259,6 +259,7 @@ class ncadapter {
         nccommon.debug(this.bot, data)
         let minfo
         let event  = []
+        let body
         switch (data.notice_type) {
             case 'friend_add':
                 event = ['notice', 'notice.friend', 'notice.friend.increase']
@@ -266,14 +267,16 @@ class ncadapter {
                 let finfo = await this.napcat.get_friend_list()
                 finfo = finfo.find((f) => f.user_id == data.user_id);
                 if(!finfo) break //单向好友
-                Bot[this.bot.uin].fl.set(data.user_id, {
+                body = {
                     class_id: 0,
                     nickname: finfo.nickname,
                     remark: finfo.remark || finfo.nickname,
                     sex: finfo.sex,
                     user_id: finfo.user_id,
                     user_uid: ''
-                })
+                }
+                Bot[this.bot.uin].fl.set(data.user_id, body)
+                Bot.fl.set(data.user_id, body)
                 break
             case 'group_admin':
                 event = ['notice', 'notice.group', 'notice.group.admin']
@@ -282,12 +285,14 @@ class ncadapter {
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
 
-                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, {
+                body = {
                     ...minfo,
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
-                })
+                }
+                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
+                (Bot.gml.get(data.group_id)).set(data.user_id, body);
                 data.sub_type = 'admin'
                 break
             case 'group_increase':
@@ -296,13 +301,14 @@ class ncadapter {
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
-
-                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, {
+                body = {
                     ...minfo,
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
-                });
+                }
+                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
+                (Bot.gml.get(data.group_id)).set(data.user_id, body);
 
                 data.sub_type = 'increase'
                 break
@@ -316,6 +322,7 @@ class ncadapter {
                 }
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
                 (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
+                (Bot.gml.get(data.group_id)).delete(data.user_id);
                 data.sub_type = 'decrease'
                 break
             case 'group_ban':
@@ -344,6 +351,9 @@ class ncadapter {
         /** 初始化e */
         let e = data
         e.bot = Bot[this.bot.uin]
+        if(event.includes('message')) {
+            e.sub_type = message_type
+        }
 
         /** 消息事件 */
         const messagePostType = async function () {
@@ -794,12 +804,14 @@ class ncadapter {
         if(no_cache) {
             let minfo = await this.napcat.get_group_member_list({ group_id: gid, no_cache })
             await Promise.all(minfo.map(i => {
-                (Bot[this.bot.uin].gml.get(gid)).set(i.user_id, {
+                let body = {
                     ...i,
                     shutup_time: i.shut_up_timestamp,
                     user_uid: ``,
                     update_time: 0
-                });
+                }
+                (Bot[this.bot.uin].gml.get(gid)).set(i.user_id, body);
+                (Bot.gml.get(gid)).set(i.user_id, body);
             }))
             gml = Bot[this.bot.uin].gml.get(gid)
         }
@@ -1131,7 +1143,7 @@ class ncadapter {
             }
             meInfo.shutup_time_me = meInfo.raw_info.shut_up_timestamp
             if (meInfo.raw_info.role == 'admin') meInfo.admin_flag = true
-            Bot[this.bot.uin].gl.set(i.group_id, {
+            let body = {
                 group_id: i.group_id,
                 group_name: i.group_name,
                 member_count: i.member_count,
@@ -1143,7 +1155,9 @@ class ncadapter {
                 shutup_time_whole,
                 admin_flag: meInfo.admin_flag,
                 update_time: 0
-            })
+            }
+            Bot[this.bot.uin].gl.set(i.group_id, body)
+            Bot.gl.set(i.group_id, body)
             /**存储成员列表 */
             for (let item of memberInfo) {
                 icMemberInfo.set(item.user_id, {
@@ -1155,6 +1169,7 @@ class ncadapter {
                 })
             }
             Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
+            Bot.gml.set(i.group_id, icMemberInfo)
         }
         nccommon.debug(this.bot, `加载群成员列表完成`)
     }
@@ -1164,14 +1179,16 @@ class ncadapter {
     async loadFriends() {
         let friends = await this.napcat.get_friend_list()
         for (let i of friends) {
-            Bot[this.bot.uin].fl.set(i.user_id, {
+            let body = {
                 class_id: 0,
                 nickname: i.nickname,
                 remark: i.remark || i.nickname,
                 sex: i.sex,
                 user_id: i.user_id,
                 user_uid: ''
-            })
+            }
+            Bot[this.bot.uin].fl.set(i.user_id, body)
+            Bot.fl.set(i.user_id, body)
         }
         nccommon.debug(this.bot, `好友列表加载完成`)
     }
