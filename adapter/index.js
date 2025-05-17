@@ -123,6 +123,38 @@ class ncadapter {
                 let res = await nccommon.getMessage(info.message, null, true, this.bot.uin, this.napcat)
                 info = Object.assign(info, res)
                 return info
+            },
+            getSystemMsg: async () => {
+                let info = await this.napcat.get_group_system_msg()
+                let gjr = []
+                let joinlist = [...info.InvitedRequest, ...info.join_requests]
+                for (let item of joinlist) {
+                    if(joinlist.checked) continue
+                    gjr.push({
+                        post_type: 'request',
+                        request_type: 'group',
+                        sub_type: 'add',
+                        time: 0,
+                        group_id: item.group_id,
+                        user_id: item.invitor_uin,
+                        comment: item.message,
+                        flag: item.request_id,
+                        seq: item.request_id,
+                        approve: async(approve = true) => {
+                            try {
+                                await this.napcat.set_group_add_request({ flag: item.request_id, approve })
+                            } catch (error) {
+                                return false
+                            }
+                            return true
+                        },
+                        group_name: item.group_name,
+                        tips: '',
+                        inviter_id: undefined,
+                        nickname: item.invitor_nick
+                    })
+                }
+                return gjr
             }
         }
 
@@ -267,6 +299,17 @@ class ncadapter {
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
                 (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
                 data.sub_type = 'decrease'
+                return this.dealEvent(data)
+            case 'group_ban':
+                if(data.sub_type) {
+                    nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}禁言${data.duration}秒`)
+                } else {
+                    nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}解除禁言`)
+                }
+                minfo = (await Bot[this.bot.uin].gml.get(data.group_id)).get(data.user_id);
+                minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
+                minfo.shutup_time = (Date.now() / 1000) + data.duration;
+                minfo.shutup = data.duration;
                 return this.dealEvent(data)
         }
         // 未知事件直接先处理防止报错
@@ -727,7 +770,18 @@ class ncadapter {
      */
     async getMemberMap(gid, no_cache = false) {
         let gml = Bot[this.bot.uin].gml.get(gid)
-        // no_cache 暂时不写，把其他的都整的差不多了再说
+        if(no_cache) {
+            let minfo = await this.napcat.get_group_member_list({ group_id: gid, no_cache })
+            await Promise.all(minfo.map(i => {
+                (Bot[this.bot.uin].gml.get(gid)).set(i.user_id, {
+                    ...i,
+                    shutup_time: i.shut_up_timestamp,
+                    user_uid: ``,
+                    update_time: 0
+                });
+            }))
+            gml = Bot[this.bot.uin].gml.get(gid)
+        }
         return gml
     }
     /**
