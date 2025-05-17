@@ -27,9 +27,7 @@ class ncadapter {
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
         this.napcat.on('message', async (data) => Bot.emit('message', await this.dealEvent(data)))
-        // this.napcat.on('notice.friend_add', async (data) => Bot.emit('notice.friend.increase', await this.dealNotice(data, 'notice.friend_add')))
-        this.napcat.on('request.friend', async (data) => Bot.emit('request.friend', await this.dealNotice(data, 'request.friend')))
-        // this.napcat.on('notice.group_admin', async (data) => Bot.emit('notice.group.admin', await this.dealNotice(data, 'notice.group_admin')))
+        this.napcat.on('request', async (data) => Bot.emit('request', await this.dealRequest(data, 'request')))
         this.napcat.on('notice', async (data) => Bot.emit('notice', await this.dealNotice(data, 'notice')))
 
         this.bot = {
@@ -184,6 +182,30 @@ class ncadapter {
         return forwardMsg;
     }
     /**
+     * 处理request事件
+     * @param data
+     */
+    async dealRequest(data) {
+        nccommon.debug(this.bot, `收到request事件`)
+        nccommon.debug(this.bot, data)
+        switch (data.request_type) {
+            case 'friend':
+                nccommon.info(this.bot, `收到好友请求`, `${data.user_id}`)
+                data.sub_type = 'add'
+                data.seq = data.flag
+                return this.dealEvent(data)
+            case 'group':
+                if(data.sub_type === 'add') {
+                    nccommon.info(this.bot, `收到加群申请`, `${data.user_id}申请加入${data.group_id}`)
+                } else {
+                    nccommon.info(this.bot, `收到邀请加群`, `${data.user_id}邀请机器人加入${data.group_id}`)
+                }
+                data.seq = data.flag
+                return this.dealEvent(data)
+        }
+        return this.dealEvent(data)
+    }
+    /**
      * 处理通知事件
      * @param data 
      */
@@ -309,10 +331,10 @@ class ncadapter {
                     getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
                     /** 禁言 */
                     mute: async (time) => {
-                        let res
+                        let res = true
                         try {
-                            res = await this.napcat.set_group_ban({ group_id, user_id, duration: time })
-                        } catch (error) { } //报错不处理
+                            await this.napcat.set_group_ban({ group_id, user_id, duration: time })
+                        } catch (error) { res = false } //报错不处理
                         return res
                     }
                 }
@@ -359,7 +381,8 @@ class ncadapter {
                 case 'friend': {
                     e.approve = async (approve = true) => {
                         if (e.flag) {
-                            return await api.set_friend_add_request(this.bot.uin, e.flag, approve)
+                            // return await api.set_friend_add_request(this.bot.uin, e.flag, approve)
+                            return await this.napcat.set_friend_add_request({ flag: e.flag, approve, remark: '' })
                         } else {
                             return false
                         }
@@ -369,13 +392,14 @@ class ncadapter {
                 case 'group': {
                     try {
                         let gl = Bot[this.bot.uin].gl.get(e.group_id)
-                        let fl = await Bot[this.bot.uin].api.get_stranger_info(Number(e.user_id))
+                        let fl = await this.napcat.get_stranger_info({ user_id: e.user_id })
                         e = { ...e, ...gl, ...fl }
                         e.group_id = Number(data.group_id)
                         e.user_id = Number(data.user_id)
                     } catch { }
                     e.approve = async (approve = true) => {
-                        if (e.flag) return await api.set_group_add_request(this.bot.uin, e.flag, e.sub_type, approve)
+                        // if (e.flag) return await api.set_group_add_request(this.bot.uin, e.flag, e.sub_type, approve)
+                        if(e.flag) return await this.napcat.set_group_add_request({ flag: e.flag, approve, reason: '' })
                         if (e.sub_type === 'add') {
                         } else {
                             // invite
@@ -433,11 +457,13 @@ class ncadapter {
             markRead: async(times) => await this.makeRead(user_id),
             setFriendReq: async(seq, yes = true, remark = '', block = false) => await this.setFriendReq(seq, yes, remark),
             setGroupReq: async(gid, seq, yes = true, reason = '', block = false) => await this.setGroupReq(seq, yes, reason),
-            setGroupInvite: async(gid, seq, yes = true, block = false) => await this.setGroupReq(seq, yes, '')
+            setGroupInvite: async(gid, seq, yes = true, block = false) => await this.setGroupReq(seq, yes, ''),
+            user_id,
         }
     }
     pickFriend(user_id) {
         let pickUser = this.pickUser(user_id)
+        let finfo = Bot[this.bot.uin].fl.get(user_id)
         return {
             ...pickUser,
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
@@ -452,10 +478,10 @@ class ncadapter {
                 return res
             },
             searchSameGroup: async() => {
-                let gls = Array.from(Bot.gl.keys())
+                let gls = Array.from(Bot[this.bot.uin].gl.keys())
                 let gtq = Promise.all(gls.map( i => {
-                    let info = (Bot.gml.get(i)).get(user_id)
-                    let groupName = Bot.gl.get(i).group_name
+                    let info = (Bot[this.bot.uin].gml.get(i)).get(user_id)
+                    let groupName = Bot[this.bot.uin].gl.get(i).group_name
                     if(info) {
                         return {
                             groupName: groupName,
@@ -464,7 +490,8 @@ class ncadapter {
                     }
                 } ))
                 return (await gtq).filter(item => item !== undefined)
-            }
+            },
+            ...finfo
         }
     }
     /**
@@ -475,10 +502,12 @@ class ncadapter {
         let is_admin = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'admin'
         let is_owner = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'owner'
         let name = (Bot[this.bot.uin]?.gl.get(group_id))?.group_name || group_id
+        let ginfo = Bot[this.bot.uin]?.gl.get(group_id)
         return {
             name,
             is_admin,
             is_owner,
+            ...ginfo,
             sendMsg: async (msg) => await this.GsendMsg(group_id, msg),
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
