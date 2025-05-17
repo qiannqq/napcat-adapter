@@ -1,5 +1,5 @@
 # ws地址
-baseUrl: "ws://111.170.18.131:32334"
+baseUrl: "ws://127.0.0.1:2985"
 # Token ↓
 # accessToken: "your token"
 # 是否需要在触发 socket.error 时抛出错误, 默认关闭
