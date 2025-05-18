@@ -7,15 +7,7 @@ import fs from 'fs'
 class ncadapter {
     constructor(cfg) {
         this.cfg = cfg
-        const napcat = new NCWebsocket({
-            baseUrl: cfg.baseUrl,
-            throwPromise: true,
-            reconnection: {
-                enable: true,
-                attempts: 10,
-                delay: 5000
-            }
-        })
+        const napcat = new NCWebsocket(cfg)
         this.napcat = napcat
     }
     /**
@@ -307,7 +299,7 @@ class ncadapter {
                     user_uid: '',
                     update_time: 0
                 };
-                
+
                 (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
                 (Bot.gml.get(data.group_id)).set(data.user_id, body);
 
@@ -1112,7 +1104,7 @@ class ncadapter {
      */
     async loadGroups() {
         let groups = await this.napcat.get_group_list()
-        for (let i of groups) {
+        Promise.all(groups.map(async i => {
             await nccommon.sleep(50)
             /**群成员列表 */
             let memberInfo = await this.napcat.get_group_member_list({ group_id: i.group_id })
@@ -1171,7 +1163,7 @@ class ncadapter {
             }
             Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
             Bot.gml.set(i.group_id, icMemberInfo)
-        }
+        }))
         nccommon.debug(this.bot, `加载群成员列表完成`)
     }
     /**
@@ -1179,7 +1171,7 @@ class ncadapter {
      */
     async loadFriends() {
         let friends = await this.napcat.get_friend_list()
-        for (let i of friends) {
+        Promise.all(friends.map(async i => {
             let body = {
                 class_id: 0,
                 nickname: i.nickname,
@@ -1190,7 +1182,7 @@ class ncadapter {
             }
             Bot[this.bot.uin].fl.set(i.user_id, body)
             Bot.fl.set(i.user_id, body)
-        }
+        }))
         nccommon.debug(this.bot, `好友列表加载完成`)
     }
 }
