@@ -254,11 +254,11 @@ class ncadapter {
         let body
         switch (data.notice_type) {
             case 'friend_add':
-                event = ['notice', 'notice.friend', 'notice.friend.increase']
-                nccommon.info(this.bot, `好友增加`, `${data.user_id}`)
-                let finfo = await this.napcat.get_friend_list()
+                event = ['notice', 'notice.friend', 'notice.friend.increase'];
+                nccommon.info(this.bot, `好友增加`, `${data.user_id}`);
+                let finfo = await this.napcat.get_friend_list();
                 finfo = finfo.find((f) => f.user_id == data.user_id);
-                if(!finfo) break //单向好友
+                if(!finfo) break; //单向好友
                 body = {
                     class_id: 0,
                     nickname: finfo.nickname,
@@ -266,13 +266,13 @@ class ncadapter {
                     sex: finfo.sex,
                     user_id: finfo.user_id,
                     user_uid: ''
-                }
-                Bot[this.bot.uin].fl.set(data.user_id, body)
-                Bot.fl.set(data.user_id, body)
-                break
+                };
+                Bot[this.bot.uin].fl.set(data.user_id, body);
+                Bot.fl.set(data.user_id, body);
+                break;
             case 'group_admin':
-                event = ['notice', 'notice.group', 'notice.group.admin']
-                nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`)
+                event = ['notice', 'notice.group', 'notice.group.admin'];
+                nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
@@ -282,14 +282,14 @@ class ncadapter {
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
-                }
+                };
                 (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
                 (Bot.gml.get(data.group_id)).set(data.user_id, body);
-                data.sub_type = 'admin'
-                break
+                data.sub_type = 'admin';
+                break;
             case 'group_increase':
-                event = ['notice', 'notice.group', 'notice.group.increase']
-                nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`)
+                event = ['notice', 'notice.group', 'notice.group.increase'];
+                nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
@@ -303,33 +303,33 @@ class ncadapter {
                 (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
                 (Bot.gml.get(data.group_id)).set(data.user_id, body);
 
-                data.sub_type = 'increase'
-                break
+                data.sub_type = 'increase';
+                break;
             case 'group_decrease':
-                event = ['notice', 'notice.group', 'notice.group.decrease']
-                let quitMsg
+                event = ['notice', 'notice.group', 'notice.group.decrease'];
+                let quitMsg;
                 if(data.sub_type == 'leave') {
                     quitMsg = `退出`
                 } else {
                     quitMsg = `被${data.operator_id}踢出`
-                }
+                };
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
                 (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
                 (Bot.gml.get(data.group_id)).delete(data.user_id);
-                data.sub_type = 'decrease'
-                break
+                data.sub_type = 'decrease';
+                break;
             case 'group_ban':
                 if(data.sub_type) {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}禁言${data.duration}秒`)
                 } else {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}解除禁言`)
-                }
+                };
                 minfo = (await Bot[this.bot.uin].gml.get(data.group_id)).get(data.user_id);
                 minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
                 minfo.shutup_time = (Date.now() / 1000) + data.duration;
                 minfo.shutup = data.duration;
-                break
-        }
+                break;
+        };
         this.dealEvent(data, event)
     }
     /**
