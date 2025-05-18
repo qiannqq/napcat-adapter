@@ -1,6 +1,5 @@
-import { NCWebsocket, Structs } from "node-napcat-ts";
+import { NCWebsocket } from "node-napcat-ts";
 import { nccommon } from "../lib/index.js";
-import url from "url";
 import path from 'path'
 import fs from 'fs'
 
@@ -9,6 +8,7 @@ class ncadapter {
         this.cfg = cfg
         const napcat = new NCWebsocket(cfg)
         this.napcat = napcat
+        this.isLoadingComple = false
     }
     /**
      * NC初始化
@@ -506,6 +506,11 @@ class ncadapter {
 
         /** 某些事件需要e.bot，走监听器没有。 */
         e.bot = Bot[this.bot.uin]
+
+        /** 资源未完成加载可能存在问题，提示一下 */
+        if(typeof this.isLoadingComple === 'boolean' && !this.isLoadingComple) {
+            nccommon.warn(this.bot, logger.yellow(`资源未完成加载，可能会存在问题`))
+        }
 
         Promise.all(event.map(i => {
             Bot.emit(i, e)
@@ -1097,17 +1102,20 @@ class ncadapter {
     }
     async LoadAll() {
         await Promise.all([this.loadGroups(), this.loadFriends()])
-        nccommon.info(this.bot, `欢迎，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
+        nccommon.info(this.bot, `欢迎。资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
+        this.isLoadingComple = true
     }
     /**
      * 加载群列表 加载群成员缓存列表
      */
     async loadGroups() {
         let groups = await this.napcat.get_group_list()
+        let _minfo = await Promise.all(groups.map(async (i) => {
+            return await this.napcat.get_group_member_list({ group_id: i.group_id })
+        }))
         for (let i of groups) {
-            await nccommon.sleep(50)
             /**群成员列表 */
-            let memberInfo = await this.napcat.get_group_member_list({ group_id: i.group_id })
+            let memberInfo = _minfo.find(a => a[0].group_id == i.group_id)
             /**ICQQ格式群成员列表 */
             let icMemberInfo = new Map()
             let join_time
