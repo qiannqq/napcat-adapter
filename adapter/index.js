@@ -1104,7 +1104,7 @@ class ncadapter {
      */
     async loadGroups() {
         let groups = await this.napcat.get_group_list()
-        Promise.all(groups.map(async i => {
+        for (let i of groups) {
             await nccommon.sleep(50)
             /**群成员列表 */
             let memberInfo = await this.napcat.get_group_member_list({ group_id: i.group_id })
@@ -1163,7 +1163,7 @@ class ncadapter {
             }
             Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
             Bot.gml.set(i.group_id, icMemberInfo)
-        }))
+        }
         nccommon.debug(this.bot, `加载群成员列表完成`)
     }
     /**
@@ -1171,7 +1171,7 @@ class ncadapter {
      */
     async loadFriends() {
         let friends = await this.napcat.get_friend_list()
-        Promise.all(friends.map(async i => {
+        for (let i of friends) {
             let body = {
                 class_id: 0,
                 nickname: i.nickname,
@@ -1182,7 +1182,7 @@ class ncadapter {
             }
             Bot[this.bot.uin].fl.set(i.user_id, body)
             Bot.fl.set(i.user_id, body)
-        }))
+        }
         nccommon.debug(this.bot, `好友列表加载完成`)
     }
 }
