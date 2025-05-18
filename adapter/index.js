@@ -1113,9 +1113,13 @@ class ncadapter {
         let _minfo = await Promise.all(groups.map(async (i) => {
             return await this.napcat.get_group_member_list({ group_id: i.group_id })
         }))
+        /**剔除空数组 */
+        _minfo = _minfo.filter(subArray => subArray.length > 0);
         for (let i of groups) {
             /**群成员列表 */
-            let memberInfo = _minfo.find(a => a[0].group_id == i.group_id)
+            let memberInfo = _minfo.find(a => a[0].group_id == i.group_id )
+            /**不知道为什么napcat会返回一堆不存在的群，memberInfo为空则该群不存在不再处理 */
+            if(!memberInfo) continue;
             /**ICQQ格式群成员列表 */
             let icMemberInfo = new Map()
             let join_time
