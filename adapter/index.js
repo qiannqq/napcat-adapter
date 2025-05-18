@@ -1109,9 +1109,9 @@ class ncadapter {
      * 加载群列表 加载群成员缓存列表
      */
     async loadGroups() {
-        let groups = await this.napcat.get_group_list()
+        let groups = await this.napcat.get_group_list({ no_cache: true })
         let _minfo = await Promise.all(groups.map(async (i) => {
-            return await this.napcat.get_group_member_list({ group_id: i.group_id })
+            return await this.napcat.get_group_member_list({ group_id: i.group_id, no_cache: true })
         }))
         /**剔除空数组 */
         _minfo = _minfo.filter(subArray => subArray.length > 0);
@@ -1182,7 +1182,7 @@ class ncadapter {
      * 加载好友列表
      */
     async loadFriends() {
-        let friends = await this.napcat.get_friend_list()
+        let friends = await this.napcat.get_friend_list({ no_cache: true })
         for (let i of friends) {
             let body = {
                 class_id: 0,
