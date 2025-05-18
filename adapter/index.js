@@ -306,7 +306,8 @@ class ncadapter {
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
-                }
+                };
+                
                 (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
                 (Bot.gml.get(data.group_id)).set(data.user_id, body);
 
