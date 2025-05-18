@@ -256,7 +256,7 @@ class ncadapter {
             case 'friend_add':
                 event = ['notice', 'notice.friend', 'notice.friend.increase'];
                 nccommon.info(this.bot, `好友增加`, `${data.user_id}`);
-                let finfo = await this.napcat.get_friend_list();
+                let finfo = await this.napcat.get_friend_list({ no_cache: true });
                 finfo = finfo.find((f) => f.user_id == data.user_id);
                 if(!finfo) break; //单向好友
                 body = {
@@ -273,7 +273,7 @@ class ncadapter {
             case 'group_admin':
                 event = ['notice', 'notice.group', 'notice.group.admin'];
                 nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`);
-                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
+                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
 
@@ -290,7 +290,7 @@ class ncadapter {
             case 'group_increase':
                 event = ['notice', 'notice.group', 'notice.group.increase'];
                 nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`);
-                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id });
+                minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
                 body = {
