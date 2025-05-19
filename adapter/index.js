@@ -402,6 +402,7 @@ class ncadapter {
                         return res
                     }
                 }
+                e.sender.getAvatarUrl = (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
                 e.group = { ...this.pickGroup(group_id) }
                 /** 快速撤回 */
                 e.recall = async () => {
@@ -412,6 +413,7 @@ class ncadapter {
                     return res
                 }
             } else {
+                e.friend.getAvatarUrl = (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
                 /** 私聊消息 */
                 e.log_message && nccommon.info(this.bot, `<=`, `私聊:${sender?.nickname || sender?.card}(${user_id})：${e.log_message}`)
                 e.friend = { ...this.pickFriend(user_id) }
