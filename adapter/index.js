@@ -329,6 +329,18 @@ class ncadapter {
                 minfo.shutup_time = (Date.now() / 1000) + data.duration;
                 minfo.shutup = data.duration;
                 break;
+            case 'notify':
+                if(data.sub_type == 'poke') {
+                    if(data?.group_id) {
+                        data.notice_type == 'group'
+                        nccommon.info(this.bot, `群${data.group_id}成员${data.target_id}被${data.user_id}戳一戳`)
+                    } else { 
+                        data.notice_type == 'friend'
+                        nccommon.info(this.bot, `好友${data.target_id}被${data.user_id}戳一戳`)
+                    }
+                }
+                event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
+                break
         };
         this.dealEvent(data, event)
     }
@@ -424,6 +436,7 @@ class ncadapter {
             if (e.sub_type === 'poke') {
                 e.action = e?.poke_detail?.action || `戳了戳`
                 e.raw_message = `${e.operator_id} ${e.action} ${e.user_id}`
+                e.operator_id = e.user_id
             }
 
             if (e.group_id) {
