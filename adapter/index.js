@@ -14,7 +14,7 @@ class ncadapter {
      * NC初始化
      */
     async init() {
-        nccommon.info({ nickname: 'NapCat', uin: '未连接' }, `NC初始化`)
+        nccommon.mark({ nickname: 'NapCat', uin: '未连接' }, `NC初始化`)
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
@@ -29,7 +29,7 @@ class ncadapter {
             nickname,
             uin: user_id
         }
-        nccommon.info(this.bot, `已连接`)
+        nccommon.mark(this.bot, `已连接`)
         // 调试，全局声明napcat
         global.napcat = this.napcat
         
@@ -1116,7 +1116,8 @@ class ncadapter {
     }
     async LoadAll() {
         await Promise.all([this.loadGroups(), this.loadFriends()])
-        nccommon.info(this.bot, `欢迎。资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
+        nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
+        nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
     }
     /**
