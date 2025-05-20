@@ -249,7 +249,7 @@ class ncadapter {
     async dealNotice(data) {
         nccommon.debug(this.bot, `收到通知事件`)
         nccommon.debug(this.bot, data)
-        let minfo
+        let minfo = {}
         let event  = []
         let body
         switch (data.notice_type) {
