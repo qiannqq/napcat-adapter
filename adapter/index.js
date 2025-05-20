@@ -425,7 +425,6 @@ class ncadapter {
                     return res
                 }
             } else {
-                e.friend.
                 /** 私聊消息 */
                 e.log_message && nccommon.info(this.bot, `<=`, `私聊:${sender?.nickname || sender?.card}(${user_id})：${e.log_message}`)
                 e.friend = { ...this.pickFriend(user_id) }
