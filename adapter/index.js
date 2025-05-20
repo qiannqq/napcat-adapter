@@ -283,8 +283,8 @@ class ncadapter {
                     user_uid: '',
                     update_time: 0
                 };
-                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
-                (Bot.gml.get(data.group_id)).set(data.user_id, body);
+                Bot[this.bot.uin].gml.get(data.group_id).set(data.user_id, body);
+                Bot.gml.get(data.group_id).set(data.user_id, body);
                 data.sub_type = 'admin';
                 break;
             case 'group_increase':
@@ -300,8 +300,8 @@ class ncadapter {
                     update_time: 0
                 };
 
-                (Bot[this.bot.uin].gml.get(data.group_id)).set(data.user_id, body);
-                (Bot.gml.get(data.group_id)).set(data.user_id, body);
+                Bot[this.bot.uin].gml.get(data.group_id).set(data.user_id, body);
+                Bot.gml.get(data.group_id).set(data.user_id, body);
 
                 data.sub_type = 'increase';
                 break;
@@ -314,8 +314,8 @@ class ncadapter {
                     quitMsg = `被${data.operator_id}踢出`
                 };
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
-                (Bot[this.bot.uin].gml.get(data.group_id)).delete(data.user_id);
-                (Bot.gml.get(data.group_id)).delete(data.user_id);
+                Bot[this.bot.uin].gml.get(data.group_id).delete(data.user_id);
+                Bot.gml.get(data.group_id).delete(data.user_id);
                 data.sub_type = 'decrease';
                 break;
             case 'group_ban':
@@ -567,7 +567,7 @@ class ncadapter {
             searchSameGroup: async() => {
                 let gls = Array.from(Bot[this.bot.uin].gl.keys())
                 let gtq = Promise.all(gls.map( i => {
-                    let info = (Bot[this.bot.uin].gml.get(i)).get(user_id)
+                    let info = Bot[this.bot.uin].gml.get(i).get(user_id)
                     let groupName = Bot[this.bot.uin].gl.get(i).group_name
                     if(info) {
                         return {
@@ -586,8 +586,8 @@ class ncadapter {
      * @param group_id 
      */
     pickGroup(group_id) {
-        let is_admin = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'admin'
-        let is_owner = (Bot[this.bot.uin]?.gml.get(group_id))?.get(this.bot.uin)?.role === 'owner'
+        let is_admin = Bot[this.bot.uin]?.gml.get(group_id)?.get(this.bot.uin)?.role === 'admin'
+        let is_owner = Bot[this.bot.uin]?.gml.get(group_id)?.get(this.bot.uin)?.role === 'owner'
         let name = (Bot[this.bot.uin]?.gl.get(group_id))?.group_name || group_id
         let ginfo = Bot[this.bot.uin]?.gl.get(group_id)
         return {
@@ -823,8 +823,8 @@ class ncadapter {
                     user_uid: ``,
                     update_time: 0
                 }
-                (Bot[this.bot.uin].gml.get(gid)).set(i.user_id, body);
-                (Bot.gml.get(gid)).set(i.user_id, body);
+                Bot[this.bot.uin].gml.get(gid).set(i.user_id, body);
+                Bot.gml.get(gid).set(i.user_id, body);
             }))
             gml = Bot[this.bot.uin].gml.get(gid)
         }
@@ -1007,7 +1007,7 @@ class ncadapter {
         return res
     }
     pickMember(gid, uid) {
-        let info = (Bot[this.bot.uin].gml?.get(gid))?.get(uid)
+        let info = Bot[this.bot.uin].gml?.get(gid)?.get(uid)
         return {
             info,
             ...info
