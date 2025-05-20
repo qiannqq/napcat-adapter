@@ -425,7 +425,7 @@ class ncadapter {
                     return res
                 }
             } else {
-                e.friend.getAvatarUrl = (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`
+                e.friend.
                 /** 私聊消息 */
                 e.log_message && nccommon.info(this.bot, `<=`, `私聊:${sender?.nickname || sender?.card}(${user_id})：${e.log_message}`)
                 e.friend = { ...this.pickFriend(user_id) }
