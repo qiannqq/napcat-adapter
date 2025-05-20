@@ -386,7 +386,7 @@ class ncadapter {
                 }
 
                 e.nickname = sender?.nickname || sender?.card
-                e.seq = seq
+                e.seq = seq || message_id
                 e.group_name = raw_group_name
                 e.operator_id = user_id
                 nccommon.info(this.bot, `${raw_group_name}(${group_id})`, `<=`, `${e.nickname}(${user_id})：${data.raw_message}`)
