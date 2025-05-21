@@ -882,7 +882,7 @@ class ncadapter {
         messages = messages.map(async m => {
          if(!isPrivate) m.group_name = group?.group_name || group_id
           m.atme = !!m.message.find(msg => msg.type === 'at' && msg.data?.qq == this.bot.uin)
-          let result = await nccommon.getMessage(m.message, null, true, this.bot.uin, this.napcat)
+          let result = await nccommon.getMessage(m.message, group_id, true, this.bot.uin, this.napcat)
           m = Object.assign(m, result)
           return m
         })
