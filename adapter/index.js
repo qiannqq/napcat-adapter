@@ -95,7 +95,7 @@ class ncadapter {
             gl: new Map(),
             gml: new Map(),
             guilds: new Map(),
-            adapter: 'napcat',
+            adapter: 'OneBotv11',
             uin: this.bot.uin,
             nickname: this.bot.nickname,
             tiny_id: '',
@@ -151,14 +151,18 @@ class ncadapter {
                     })
                 }
                 return gjr
+            },
+            stat: { start_time: Date.now() / 1000, recv_msg_cnt: 0 },
+            version: {
+                ...(await this.napcat.get_version_info()),
+                id: `QQ`,
+                name: `OneBotv11`,
+                get version() {
+                    return `${this.app_name} v${this.app_version}`
+                }
             }
         }
 
-        /** 获取协议信息 */
-        let version_info = await this.napcat.get_version_info()
-        Bot[this.bot.uin].stat = { start_time: Date.now() / 1000, recv_msg_cnt: 0 }
-        Bot[this.bot.uin].apk = { display: 'QQNT', version: '0.0.0' } // napcat不传协议版本
-        Bot[this.bot.uin].version = { id: 'QQ', name: version_info.app_name, version: version_info.app_version }
 
         /** 合并Bot，兼容老旧不规范插件 */
         /** 或许有其他解决方法 */
