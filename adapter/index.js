@@ -228,6 +228,8 @@ class ncadapter {
                     event.push('request.group.invite')
                     nccommon.info(this.bot, `收到邀请加群`, `${data.user_id}邀请机器人加入${data.group_id}`)
                 }
+                let ginfo = await this.napcat.get_group_info({ group_id: data.group_id })
+                if(ginfo) data = Object.assign({}, ginfo, data)
                 data.seq = data.flag
                 break
         }
