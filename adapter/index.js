@@ -1059,6 +1059,10 @@ class ncadapter {
      * @returns { message_id }
      */
     async GsendMsg(group_id, msg, msgid = false, user_id, recall) {
+        if(Promise.resolve(msg) === msg) {
+            msg = await msg
+        }
+        if(!msg) return
         let { ncmsg, raw_msg, node } = await nccommon.format(msg, msgid)
 
         let forg
