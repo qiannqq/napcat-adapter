@@ -148,7 +148,7 @@ class ncadapter {
                     return `${this.app_name} v${this.app_version}`
                 }
             },
-            hookSendMsg: async () => { return { isNext: true } }
+            hookSendMsg: async (group_id, msg, msgid = false, user_id, recall, isHook) => { return { isNext: true, data: { group_id, msg, msgid, user_id, recall, isHook } } }
         }
 
 
