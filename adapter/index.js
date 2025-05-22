@@ -583,6 +583,8 @@ class ncadapter {
         let is_owner = Bot[this.bot.uin]?.gml.get(group_id)?.get(this.bot.uin)?.role === 'owner'
         let name = (Bot[this.bot.uin]?.gl.get(group_id))?.group_name || group_id
         let ginfo = Bot[this.bot.uin]?.gl.get(group_id)
+        let meinfo = Bot[this.bot.uin]?.gml.get(group_id).get(this.bot.uin)
+        let mute_left = meinfo?.shut_up_timestamp - Date.now() / 1000
         return {
             name,
             is_admin,
@@ -617,6 +619,7 @@ class ncadapter {
             addEssence: async (seq, rand) => await this.addEssence(seq, rand),
             removeEssence: async (seq, rand) => await this.removeEssence(seq, rand),
             announce: async(content) => await this.announce(group_id, content),
+            mute_left,
         }
     }
     /**
