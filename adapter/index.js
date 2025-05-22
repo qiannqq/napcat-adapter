@@ -147,7 +147,8 @@ class ncadapter {
                 get version() {
                     return `${this.app_name} v${this.app_version}`
                 }
-            }
+            },
+            hookSendMsg: async () => { return { isNext: true } }
         }
 
 
@@ -500,9 +501,9 @@ class ncadapter {
         /** 快速回复 */
         e.reply = async (msg, quote, recall = {}) => {
             if (quote) {
-                return await this.GsendMsg(group_id, msg, message_id, user_id, recall)
+                return await this.sendMsg(group_id, msg, message_id, user_id, recall)
             } else {
-                return await this.GsendMsg(group_id, msg, null, user_id, recall)
+                return await this.sendMsg(group_id, msg, null, user_id, recall)
             }
         }
         /** 获取对应用户头像 */
@@ -529,7 +530,7 @@ class ncadapter {
             getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
             addFriendBack: async (seq, remark = '') => await this.addFriendBack(seq, remark),
-            sendMsg: async (msg) => await this.GsendMsg(null, msg, null, user_id),
+            sendMsg: async (msg) => await this.sendMsg(null, msg, null, user_id),
             getChatHistory: async (seq, c) => await this.getChatHistory(user_id, seq, c, true),
             thumbUp: async(times) => await this.thumbUp(user_id, times),
             getSimpleInfo: async() => await this.getSimpleInfo(user_id),
@@ -587,7 +588,7 @@ class ncadapter {
             is_admin,
             is_owner,
             ...ginfo,
-            sendMsg: async (msg) => await this.GsendMsg(group_id, msg),
+            sendMsg: async (msg, isHook = false) => await this.sendMsg(group_id, msg, null, null, null, isHook),
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
             setName: async (name) => await this.setName(group_id, name),
@@ -1054,13 +1055,24 @@ class ncadapter {
         return await this.napcat.delete_msg({ message_id: msg_id })
     }
     /**
-     * 发送群消息
-     * @param group_id 群ID
+     * 发送消息
+     * @param group_id 群聊填此
      * @param msg 
      * @param msgid 引用的消息ID，node等特殊消息无效
+     * @param user_id 私聊填此
+     * @param recall 暂时无用
+     * @param isHook 是否绕过hook
      * @returns { message_id }
      */
-    async GsendMsg(group_id, msg, msgid = false, user_id, recall) {
+    async sendMsg(group_id, msg, msgid = false, user_id, recall, isHook) {
+        /**执行hookSendMsg，是否交由hook处理 */
+        let hook
+        if(!isHook) hook = await Bot[this.bot.uin].hookSendMsg(group_id, msg, msgid, user_id, recall)
+        if(!hook?.isNext && !isHook) {
+            return hook.res
+        };
+        ({ group_id, msg, msgid, user_id, recall } = hook.data);
+
         if(Promise.resolve(msg) === msg) {
             msg = await msg
         }
