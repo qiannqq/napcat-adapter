@@ -74,23 +74,10 @@ class ncadapter {
         ]
     }
     async BotInit() {
-        let botck = {}
-        let botbkn
-
-        /** 并发，不然慢的要死 */
-        nccommon.debug(this.bot, '加载cookies...')
-        await Promise.all(this.domain().map(async (i) => {
-            const ck = await this.napcat.get_cookies({ domain: i });
-            botck[i] = ck.cookies;
-            if (ck.bkn) {
-                botbkn = ck.bkn;
-            }
-        }));
-        nccommon.debug(this.bot, '加载cookies完成')
 
         Bot[this.bot.uin] = {
-            bkn: botbkn,
-            cookies: botck,
+            bkn: '',
+            cookies: {},
             fl: new Map(),
             gl: new Map(),
             gml: new Map(),
@@ -1119,10 +1106,26 @@ class ncadapter {
         return res
     }
     async LoadAll() {
-        await Promise.all([this.loadGroups(), this.loadFriends()])
+        await Promise.all([this.loadGroups(), this.loadFriends(), this.loadCookies()])
         nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
+        /**设置2h30m自动刷新ck */
+        setInterval(async () => {
+            await this.loadCookies()
+        }, 2.5 * 60 * 60 * 1000)
+    }
+    async loadCookies() {
+        /** 并发，不然慢的要死 */
+        nccommon.debug(this.bot, '加载cookies...')
+        await Promise.all(this.domain().map(async (i) => {
+            const ck = await this.napcat.get_cookies({ domain: i });
+            Bot[this.bot.uin].cookies[i] = ck.cookies;
+            if (ck.bkn) {
+                Bot[this.bot.uin].bkn = ck.bkn;
+            }
+        }));
+        nccommon.debug(this.bot, '加载cookies完成')
     }
     /**
      * 加载群列表 加载群成员缓存列表
