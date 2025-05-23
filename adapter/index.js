@@ -266,6 +266,7 @@ class ncadapter {
                 break;
             case 'group_admin':
                 event = ['notice', 'notice.group', 'notice.group.admin'];
+                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
@@ -277,12 +278,13 @@ class ncadapter {
                     user_uid: '',
                     update_time: 0
                 };
-                Bot[this.bot.uin].gml.get(data.group_id).set(data.user_id, body);
-                Bot.gml.get(data.group_id).set(data.user_id, body);
+                Bot[this.bot.uin].gml?.get(data.group_id)?.set(data.user_id, body);
+                Bot.gml?.get(data.group_id)?.set(data.user_id, body);
                 data.sub_type = 'admin';
                 break;
             case 'group_increase':
                 event = ['notice', 'notice.group', 'notice.group.increase'];
+                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
@@ -301,6 +303,7 @@ class ncadapter {
                 break;
             case 'group_decrease':
                 event = ['notice', 'notice.group', 'notice.group.decrease'];
+                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 let quitMsg;
                 if(data.sub_type == 'leave') {
                     quitMsg = `退出`
@@ -313,6 +316,7 @@ class ncadapter {
                 data.sub_type = 'decrease';
                 break;
             case 'group_ban':
+                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 if(data.sub_type) {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}禁言${data.duration}秒`)
                 } else {
@@ -324,6 +328,7 @@ class ncadapter {
                 minfo.shutup = data.duration;
                 break;
             case 'notify':
+                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 if(data.sub_type == 'poke') {
                     if(data?.group_id) {
                         data.notice_type == 'group'
@@ -1154,6 +1159,7 @@ class ncadapter {
      * 加载群列表 加载群成员缓存列表
      */
     async loadGroups() {
+        nccommon.debug(this.bot, '加载群列表、群成员列表...')
         let groups = await this.napcat.get_group_list({ no_cache: true })
         let _minfo = await Promise.all(groups.map(async (i) => {
             return await this.napcat.get_group_member_list({ group_id: i.group_id, no_cache: true })
@@ -1221,7 +1227,7 @@ class ncadapter {
             Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
             Bot.gml.set(i.group_id, icMemberInfo)
         }
-        nccommon.debug(this.bot, `加载群成员列表完成`)
+        nccommon.debug(this.bot, `加载群列表、群成员列表完成`)
     }
     /**
      * 加载好友列表
