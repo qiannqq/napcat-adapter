@@ -19,7 +19,7 @@ class ncadapter {
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
         this.napcat.on('message', (data) => {
-            if(data?.group_id) return this.dealEvent(data, ['message', 'message.group'])
+            if(data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
             return this.dealEvent(data, ['message', 'message.private'])
          })
         this.napcat.on('request', (data) => this.dealRequest(data))
@@ -266,7 +266,7 @@ class ncadapter {
                 break;
             case 'group_admin':
                 event = ['notice', 'notice.group', 'notice.group.admin'];
-                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
+                if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 nccommon.info(this.bot, `群管理变更`, `${data.user_id}被${data.sub_type}群${data.group_id}管理员`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
@@ -284,7 +284,7 @@ class ncadapter {
                 break;
             case 'group_increase':
                 event = ['notice', 'notice.group', 'notice.group.increase'];
-                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
+                if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 nccommon.info(this.bot, `群员增加`, `${data.user_id}加入群${data.group_id}，处理人：${data.operator_id}`);
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
@@ -303,7 +303,7 @@ class ncadapter {
                 break;
             case 'group_decrease':
                 event = ['notice', 'notice.group', 'notice.group.decrease'];
-                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
+                if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 let quitMsg;
                 if(data.sub_type == 'leave') {
                     quitMsg = `退出`
@@ -316,7 +316,7 @@ class ncadapter {
                 data.sub_type = 'decrease';
                 break;
             case 'group_ban':
-                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
+                if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 if(data.sub_type) {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}禁言${data.duration}秒`)
                 } else {
@@ -328,17 +328,17 @@ class ncadapter {
                 minfo.shutup = data.duration;
                 break;
             case 'notify':
-                if(Bot[this.bot.uin].gl?.get(data.group_id) || Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 if(data.sub_type == 'poke') {
                     if(data?.group_id) {
+                        if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                         data.notice_type == 'group'
                         nccommon.info(this.bot, `群${data.group_id}成员${data.target_id}被${data.user_id}戳一戳`)
                     } else { 
                         data.notice_type == 'friend'
                         nccommon.info(this.bot, `好友${data.target_id}被${data.user_id}戳一戳`)
                     }
+                    event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
                 }
-                event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
                 break
         };
         this.dealEvent(data, event)
@@ -351,6 +351,7 @@ class ncadapter {
      */
     async dealEvent(data, event = []) {
         if(event?.length == 0) return;
+        if(event.includes('message.private')) delete data.group_id
         const { post_type, group_id, user_id, message_type, message_id, sender } = data
         /** 初始化e */
         let e = data
@@ -584,11 +585,11 @@ class ncadapter {
      * @param group_id 
      */
     pickGroup(group_id) {
-        let is_admin = Bot[this.bot.uin]?.gml.get(group_id)?.get(this.bot.uin)?.role === 'admin'
-        let is_owner = Bot[this.bot.uin]?.gml.get(group_id)?.get(this.bot.uin)?.role === 'owner'
-        let name = (Bot[this.bot.uin]?.gl.get(group_id))?.group_name || group_id
-        let ginfo = Bot[this.bot.uin]?.gl.get(group_id)
-        let meinfo = Bot[this.bot.uin]?.gml.get(group_id).get(this.bot.uin)
+        let is_admin = Bot[this.bot.uin].gml?.get(group_id)?.get(this.bot.uin)?.role === 'admin'
+        let is_owner = Bot[this.bot.uin].gml?.get(group_id)?.get(this.bot.uin)?.role === 'owner'
+        let name = (Bot[this.bot.uin].gl?.get(group_id))?.group_name || group_id
+        let ginfo = Bot[this.bot.uin].gl?.get(group_id)
+        let meinfo = Bot[this.bot.uin].gml?.get(group_id)?.get(this.bot.uin)
         let mute_left = meinfo?.shut_up_timestamp - Date.now() / 1000
         return {
             name,
