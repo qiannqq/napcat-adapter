@@ -99,7 +99,7 @@ class ncadapter {
                 if(!info) throw new Error(`消息不存在`);
                 if(info?.group_id) {
                     if(info.message?.length == 0) info.message_id = Math.random().toString().slice(2,12); // 消息不存在则随机生成一个msgid
-                    let group = await Bot[this.bot.uin].gl.get(info.group_id)
+                    let group = await Bot[this.bot.uin].gl?.get(info.group_id)
                     info.group_name = group?.group_name || info.group_id
                     info.atme = !!info.message.find(i => i.type === 'at' && i.data?.qq === this.bot.uin)
                 }
@@ -296,8 +296,8 @@ class ncadapter {
                     update_time: 0
                 };
 
-                Bot[this.bot.uin].gml.get(data.group_id).set(data.user_id, body);
-                Bot.gml.get(data.group_id).set(data.user_id, body);
+                Bot[this.bot.uin].gml?.get(data.group_id)?.set(data.user_id, body);
+                Bot.gml?.get(data.group_id)?.set(data.user_id, body);
 
                 data.sub_type = 'increase';
                 break;
@@ -311,8 +311,8 @@ class ncadapter {
                     quitMsg = `被${data.operator_id}踢出`
                 };
                 nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
-                Bot[this.bot.uin].gml.get(data.group_id).delete(data.user_id);
-                Bot.gml.get(data.group_id).delete(data.user_id);
+                Bot[this.bot.uin].gml?.get(data.group_id)?.delete(data.user_id);
+                Bot.gml?.get(data.group_id)?.delete(data.user_id);
                 data.sub_type = 'decrease';
                 break;
             case 'group_ban':
@@ -322,7 +322,7 @@ class ncadapter {
                 } else {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}解除禁言`)
                 };
-                minfo = Bot[this.bot.uin].gml.get(data.group_id).get(data.user_id);
+                minfo = Bot[this.bot.uin]?.gml.get(data.group_id)?.get(data.user_id);
                 minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
                 minfo.shutup_time = (Date.now() / 1000) + data.duration;
                 minfo.shutup = data.duration;
@@ -377,7 +377,7 @@ class ncadapter {
                 let group_name
                 let raw_group_name
                 try {
-                    group_name = Bot[this.bot.uin].gl.get(group_id).group_name
+                    group_name = Bot[this.bot.uin].gl?.get(group_id).group_name
                     raw_group_name = group_name
                     group_name = group_name ? `${group_name}(${group_id})` : group_id
                 } catch {
@@ -468,7 +468,7 @@ class ncadapter {
                 }
                 case 'group': {
                     try {
-                        let gl = Bot[this.bot.uin].gl.get(e.group_id)
+                        let gl = Bot[this.bot.uin].gl?.get(e.group_id)
                         let fl = await this.napcat.get_stranger_info({ user_id: e.user_id })
                         e = { ...e, ...gl, ...fl }
                         e.group_id = Number(data.group_id)
@@ -563,10 +563,10 @@ class ncadapter {
                 return res
             },
             searchSameGroup: async() => {
-                let gls = Array.from(Bot[this.bot.uin].gl.keys())
+                let gls = Array.from(Bot[this.bot.uin].gl?.keys())
                 let gtq = Promise.all(gls.map( i => {
-                    let info = Bot[this.bot.uin].gml.get(i).get(user_id)
-                    let groupName = Bot[this.bot.uin].gl.get(i).group_name
+                    let info = Bot[this.bot.uin].gml?.get(i)?.get(user_id)
+                    let groupName = Bot[this.bot.uin].gl?.get(i)?.group_name
                     if(info) {
                         return {
                             groupName: groupName,
@@ -620,7 +620,7 @@ class ncadapter {
             getAvatarUrl: (size = 0, history = 0) => this.getAvatarUrl(group_id, size, history),
             pickMember: (uid) => this.pickMember(group_id, uid),
             getAtAllRemainder: async () => await this.getAtAllRemainder(group_id),
-            renew: async () => Bot[this.bot.uin].gl.get(group_id), // 无效功能，用gl代替
+            renew: async () => Bot[this.bot.uin].gl?.get(group_id), // 无效功能，用gl代替
             addEssence: async (seq, rand) => await this.addEssence(seq, rand),
             removeEssence: async (seq, rand) => await this.removeEssence(seq, rand),
             announce: async(content) => await this.announce(group_id, content),
@@ -814,7 +814,7 @@ class ncadapter {
      * @returns 
      */
     async getMemberMap(gid, no_cache = false) {
-        let gml = Bot[this.bot.uin].gml.get(gid)
+        let gml = Bot[this.bot.uin].gml?.get(gid)
         if(no_cache) {
             let minfo = await this.napcat.get_group_member_list({ group_id: gid, no_cache })
             await Promise.all(minfo.map(i => {
@@ -824,10 +824,10 @@ class ncadapter {
                     user_uid: ``,
                     update_time: 0
                 }
-                Bot[this.bot.uin].gml.get(gid).set(i.user_id, body);
-                Bot.gml.get(gid).set(i.user_id, body);
+                Bot[this.bot.uin].gml?.get(gid)?.set(i.user_id, body);
+                Bot.gml?.get(gid)?.set(i.user_id, body);
             }))
-            gml = Bot[this.bot.uin].gml.get(gid)
+            gml = Bot[this.bot.uin].gml?.get(gid)
         }
         return gml
     }
@@ -873,7 +873,7 @@ class ncadapter {
         if(messages.length === 0) return messages
 
         let group
-        if(!isPrivate) group = Bot[this.bot.uin].gl.get(group_id)
+        if(!isPrivate) group = Bot[this.bot.uin].gl?.get(group_id)
 
         messages = messages.messages
 
@@ -1212,7 +1212,7 @@ class ncadapter {
                 admin_flag: meInfo.admin_flag,
                 update_time: 0
             }
-            Bot[this.bot.uin].gl.set(i.group_id, body)
+            Bot[this.bot.uin].gl?.set(i.group_id, body)
             Bot.gl.set(i.group_id, body)
             /**存储成员列表 */
             for (let item of memberInfo) {
@@ -1224,8 +1224,8 @@ class ncadapter {
                     update_time: 0
                 })
             }
-            Bot[this.bot.uin].gml.set(i.group_id, icMemberInfo)
-            Bot.gml.set(i.group_id, icMemberInfo)
+            Bot[this.bot.uin].gml?.set(i.group_id, icMemberInfo)
+            Bot.gml?.set(i.group_id, icMemberInfo)
         }
         nccommon.debug(this.bot, `加载群列表、群成员列表完成`)
     }
