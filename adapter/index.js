@@ -1127,18 +1127,20 @@ class ncadapter {
         return res
     }
     async LoadAll() {
-        await Promise.all([this.loadGroups(), this.loadFriends(), this.loadCookies()])
+        await Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()])
         nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
-        /**设置2h30m自动刷新ck */
+        /**设置30m自动刷新ck */
         setInterval(async () => {
             await this.loadCookies()
-        }, 2.5 * 60 * 60 * 1000)
+        }, 0.5 * 60 * 60 * 1000)
     }
     async loadCookies() {
         /** 并发，不然慢的要死 */
         nccommon.debug(this.bot, '加载cookies...')
+        Bot[this.bot.uin].cookies = {}
+        Bot[this.bot.uin].bkn = ''
         await Promise.all(this.domain().map(async (i) => {
             const ck = await this.napcat.get_cookies({ domain: i });
             Bot[this.bot.uin].cookies[i] = ck.cookies;

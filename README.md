@@ -29,6 +29,7 @@ pnpm install --filter=napcat-adapter
   6. 重启后即可享用
 
 #### 致谢
+  - NapCat 会魔法的猫娘（？）
   - node-napcat-ts 本适配器的依赖
   - Lain-plugin 铃音插件，CV了部分消息处理源码（不然进度不会这么快）
 
