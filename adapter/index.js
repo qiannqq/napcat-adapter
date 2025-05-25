@@ -352,6 +352,10 @@ class ncadapter {
      */
     async dealEvent(data, event = []) {
         if(event?.length == 0) return;
+        /** 资源未完成加载拒绝处理事件 */
+        if (typeof this.isLoadingComple === 'boolean' && !this.isLoadingComple) {
+            return
+        }
         if(event.includes('message.private')) delete data.group_id
         const { post_type, group_id, user_id, message_type, message_id, sender } = data
         /** 初始化e */
@@ -521,11 +525,6 @@ class ncadapter {
 
         /** 某些事件需要e.bot，走监听器没有。 */
         e.bot = Bot[this.bot.uin]
-
-        /** 资源未完成加载可能存在问题，提示一下 */
-        if(typeof this.isLoadingComple === 'boolean' && !this.isLoadingComple) {
-            nccommon.warn(this.bot, logger.yellow(`资源未完成加载，可能会存在问题`))
-        }
 
         Promise.all(event.map(i => {
             Bot.emit(i, e)
