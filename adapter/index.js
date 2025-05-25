@@ -544,6 +544,7 @@ class ncadapter {
             setFriendReq: async(seq, yes = true, remark = '', block = false) => await this.setFriendReq(seq, yes, remark),
             setGroupReq: async(gid, seq, yes = true, reason = '', block = false) => await this.setGroupReq(seq, yes, reason),
             setGroupInvite: async(gid, seq, yes = true, block = false) => await this.setGroupReq(seq, yes, ''),
+            sendFile: async(file, name) => await this.sendFile(user_id, undefined, file, undefined, name),
             user_id,
         }
     }
@@ -625,8 +626,36 @@ class ncadapter {
             addEssence: async (seq, rand) => await this.addEssence(seq, rand),
             removeEssence: async (seq, rand) => await this.removeEssence(seq, rand),
             announce: async(content) => await this.announce(group_id, content),
+            sendFile: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name),
             mute_left,
         }
+    }
+    /**
+     * 发送文件
+     * @param user_id 
+     * @param group_id 
+     * @param file 
+     * @param folder 
+     * @param name 
+     * @returns 
+     */
+    async sendFile(user_id, group_id, file, folder, name) {
+        if(Buffer.isBuffer(file)) {
+            file = `base64://${file.toString('base64')}`
+        } else if(nccommon.isLocalPath(file)) {
+            file = nccommon.getFilePath(file)
+        }
+        let cans = {
+            file,
+            name: name || '文件',
+        }
+        if(group_id) {
+            cans.group_id = group_id
+            cans.folder = folder || ''
+        } else {
+            cans.user_id = user_id
+        }
+        return await this.napcat.upload_group_file(cans) || false
     }
     /**
      * 处理加群请求
