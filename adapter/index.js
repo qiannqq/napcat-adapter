@@ -326,6 +326,7 @@ class ncadapter {
                 minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
                 minfo.shutup_time = (Date.now() / 1000) + data.duration;
                 minfo.shutup = data.duration;
+                event = ['notice', 'notice.group', 'notice.group.ban']
                 break;
             case 'notify':
                 if(data.sub_type == 'poke') {
@@ -708,27 +709,13 @@ class ncadapter {
         return res
     }
     /**
-     * 回添双向好友（不建议开启允许任何人添加或填写答案自动同意，napcat没有针对单向好友的事件通知，拿不到seq，这是通过发包来实现的，因为我也拿不到seq所以我没做测试不知道能不能用）
+     * 回添双向好友
      * @param seq 好友申请序号
      * @param remark 备注
      * @returns 
      */
     async addFriendBack(seq, remark = '') {
-        let body = Buffer.from(Bot.icqq.pb.encode({
-            1: 1,
-            2: Number(seq),
-            3: Number(this.bot.uin),
-            4: 10,
-            5: 2004,
-            6: 1,
-            7: 0,
-            8: {
-                1: 2,
-                52: String(remark)
-            }
-        })).toString('hex')
-        let res = await this.napcat.send_packet({ cmd: 'ProfileService.Pb.ReqSystemMsgAction.Friend', data: body });
-        return (Bot.icqq.pb.decode(Buffer.from(res, 'hex')))[1][1] === 0;
+        return false
     }
     /**
      * 发送群公告
