@@ -1152,10 +1152,22 @@ class ncadapter {
         nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
-        /**设置30m自动刷新ck */
+        this.loadAutoRefresh()
+    }
+    /** 设置自动刷新 */
+    async loadAutoRefresh() {
+        /** 30m自动刷新ck */
         setInterval(async () => {
+            nccommon.debug(this.bot, '自动刷新cookies...')
             await this.loadCookies()
-        }, 0.5 * 60 * 60 * 1000)
+            nccommon.debug(this.bot, '刷新cookies完成')
+        }, 30 * 60 * 1000)
+        /** 5m自动刷新fl */
+        setInterval(async () => {
+            nccommon.debug(this.bot, '自动刷新fl...')
+            await this.loadFriends()
+            nccommon.debug(this.bot, '刷新fl完成')
+        }, 5 * 60 * 1000)
     }
     async loadCookies() {
         /** 并发，不然慢的要死 */
@@ -1249,6 +1261,7 @@ class ncadapter {
      * 加载好友列表
      */
     async loadFriends() {
+        nccommon.debug(this.bot, `加载好友列表...`)
         let friends = await this.napcat.get_friend_list({ no_cache: true })
         for (let i of friends) {
             let body = {
