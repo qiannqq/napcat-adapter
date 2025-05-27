@@ -94,6 +94,7 @@ class ncadapter {
             pickMember: (gid, uid) => this.pickMember(gid, uid),
             setEssenceMessage: (message_id) => this.addEssence(message_id),
             removeEssenceMessage: (message_id) => this.removeEssence(message_id),
+            reloadFriendList: async () => await this.loadFriends(),
             getMsg: async (message_id) => {
                 let info = await this.napcat.get_msg({ message_id });
                 if(!info) throw new Error(`消息不存在`);
