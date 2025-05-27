@@ -7,8 +7,8 @@
   - 该适配器目前处于Beta开发阶段，依旧有许多未适配。
 
 #### 反馈
-  - 遇到任何“ICQQ”可用，但本适配器会报错的问题，请[创建issue](https://gitee.com/qiannqq/napcat-adapter/issues/new/choose)，提交**报错信息、报错插件**，等待开发者回复
-  - 我非常需要这些反馈以尽最大努力完善适配器！拜托请提供正确的反馈信息！
+  - 遇到任何“ICQQ”可用，但本适配器会报错的问题，请[创建issue](https://gitee.com/qiannqq/napcat-adapter/issues/new/choose)，提交**报错信息、报错插件、报错使用的指令**，等待开发者回复
+  - 开发者非常需要这些反馈以尽最大努力完善适配器！拜托请提供正确的反馈信息！
 
 #### 安装方式
 ```bash
@@ -20,7 +20,8 @@ pnpm install --filter=napcat-adapter
 ```
 
 #### 连接方式
-  1. 安装并打开NapCat.OneBot，登录'http://你的IP地址:6099/webui'，秘钥默认为'napcat'
+  - ⚠️本适配器为正向WS连接，请确保`napcat-adapter`可以正常访问NapCat.OneBot所提供的端口
+  1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
   2. 在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
 ![cfg-napcat](./apps/cfg-napcat.png)
   3. 打开`./config/bot.yaml`中，将“跳过登录icqq”启用
