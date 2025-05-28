@@ -323,10 +323,12 @@ class ncadapter {
                 } else {
                     nccommon.info(this.bot, `群${data.group_id}成员${data.user_id}被${data.operator_id}解除禁言`)
                 };
-                minfo = Bot[this.bot.uin]?.gml.get(data.group_id)?.get(data.user_id);
-                minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
-                minfo.shutup_time = (Date.now() / 1000) + data.duration;
-                minfo.shutup = data.duration;
+                if(data.user_id != 0) {
+                    minfo = Bot[this.bot.uin]?.gml.get(data.group_id)?.get(data.user_id);
+                    minfo.shut_up_timestamp = (Date.now() / 1000) + data.duration;
+                    minfo.shutup_time = (Date.now() / 1000) + data.duration;
+                    minfo.shutup = data.duration;
+                }
                 event = ['notice', 'notice.group', 'notice.group.ban']
                 break;
             case 'notify':
