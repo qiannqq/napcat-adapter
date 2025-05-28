@@ -1104,6 +1104,10 @@ class ncadapter {
             msg = await msg
         }
         if(!msg) return
+        /** 处理合并转发可能在数组中的情况 */
+        if(Array.isArray(msg) && msg.find(i => i?.test === true)) {
+            msg = msg.find(i => i?.test === true)
+        }
         let { ncmsg, raw_msg, node } = await nccommon.format(msg, msgid)
 
         let forg
@@ -1265,6 +1269,7 @@ class ncadapter {
      */
     async loadFriends() {
         nccommon.debug(this.bot, `加载好友列表...`)
+        Bot[this.bot.uin].fl = new Map()
         let friends = await this.napcat.get_friend_list({ no_cache: true })
         for (let i of friends) {
             let body = {
