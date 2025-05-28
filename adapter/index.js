@@ -647,6 +647,7 @@ class ncadapter {
             file = `base64://${file.toString('base64')}`
         } else if(nccommon.isLocalPath(file)) {
             file = nccommon.getFilePath(file)
+            name = name ? name : path.basename(file)
         }
         let cans = {
             file,
@@ -658,7 +659,7 @@ class ncadapter {
         } else {
             cans.user_id = user_id
         }
-        return await this.napcat.upload_group_file(cans) || false
+        return group_id ? await this.napcat.upload_group_file(cans) : await this.napcat.upload_private_file(cans)
     }
     /**
      * 处理加群请求
