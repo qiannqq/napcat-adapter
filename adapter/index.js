@@ -631,7 +631,43 @@ class ncadapter {
             announce: async(content) => await this.announce(group_id, content),
             sendFile: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name),
             mute_left,
+            fs: this.groupfs(group_id),
         }
+    }
+    groupfs(group_id) {
+        return {
+            ls: async(dirid) => await this.getGroupFileList(group_id, dirid)
+        }
+    }
+    async getGroupFileList(group_id, folder_id) {
+        let ncdata
+        let icdata = []
+        try {
+            ncdata = folder_id ? await this.napcat.get_group_files_by_folder({ group_id, folder_id }) : await this.napcat.get_group_root_files({ group_id })
+        } catch (error) {
+            throw error
+        }
+        ncdata.folders = ncdata.folders.map(i => {
+            return {
+                ...i,
+                is_dir: true
+            }
+        })
+        ncdata = [
+            ...ncdata.files,
+            ...ncdata.folders
+        ]
+        for (let i of ncdata) {
+            icdata.push({
+                ...i,
+                fid: i.file_id || i.folder_id,
+                name: i.file_name || i.folder_name,
+                user_id: i.uploader,
+                create_time: i.upload_time,
+                is_dir: i.is_dir ? true : false
+            })
+        }
+        return icdata
     }
     /**
      * 发送文件
@@ -1031,7 +1067,8 @@ class ncadapter {
         let info = Bot[this.bot.uin].gml?.get(gid)?.get(uid)
         return {
             info,
-            ...info
+            ...info,
+            ...this.pickUser(uid)
         }
     }
     async kickMember(group_id, user_id, reject_add_request = false) {
