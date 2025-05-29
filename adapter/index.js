@@ -281,6 +281,7 @@ class ncadapter {
                 };
                 Bot[this.bot.uin].gml?.get(data.group_id)?.set(data.user_id, body);
                 Bot.gml?.get(data.group_id)?.set(data.user_id, body);
+                data.set = data.sub_type === 'set'
                 data.sub_type = 'admin';
                 break;
             case 'group_increase':
