@@ -637,9 +637,45 @@ class ncadapter {
     }
     groupfs(group_id) {
         return {
-            ls: async(dirid) => await this.getGroupFileList(group_id, dirid)
+            ls: async(dirid) => await this.getGroupFileList(group_id, dirid),
+            dir: async(dirid) => await this.getGroupFileList(group_id, dirid),
+            rm: async(file_id) => await this.deleteGroupFile(group_id, file_id),
+            download: async(file_id) => await this.getGroupFileUrl(group_id, file_id)
         }
     }
+    /**
+     * 获取群文件下载链接
+     * @param group_id 群ID
+     * @param file_id 文件ID
+     * @returns 
+     */
+    async getGroupFileUrl(group_id, file_id) { 
+        try {
+            return await this.napcat.get_group_file_url({ group_id, file_id })
+        } catch (error) {
+            throw error
+        }
+    }
+    /**
+     * 删除群文件
+     * @param group_id 
+     * @param file_id 
+     * @returns 
+     */
+    async deleteGroupFile(group_id, file_id) {
+        let gflist = await this.getGroupFileList(group_id)
+        try {
+            return gflist.find(i => i.fid === file_id)?.is_dir ? await this.napcat.delete_group_folder({ group_id, folder_id: file_id }) : await this.napcat.delete_group_file({ group_id, file_id })
+        } catch (error) {
+            throw error
+        }
+    }
+    /**
+     * 群文件列表
+     * @param group_id 群ID
+     * @param folder_id 目录ID
+     * @returns 
+     */
     async getGroupFileList(group_id, folder_id) {
         let ncdata
         let icdata = []
