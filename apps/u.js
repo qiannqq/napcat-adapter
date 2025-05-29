@@ -17,7 +17,6 @@ export class update extends plugin {
                 {
                     reg: /^(#|\/)?(nc)(强制)?更新$/i,
                     fnc: 'nc更新',
-                    //Permission: 'master'
                 }
             ]
         });
@@ -34,8 +33,6 @@ export class update extends plugin {
             let oldCommitId = await getcommitId(`napcat-adapter`)
             const gitPullCmd = 'git -C ./plugins/napcat-adapter/ pull --no-rebase';
             let ret = await execSyncc(gitPullCmd)
-            const pnpmCmd = 'cd ./plugins/napcat-adapter&& pnpm i --registry=https://registry.npmmirror.com'
-            await execSyncc(pnpmCmd)
 
             if (ret.error) {
                 let stdout = ret.stdout.toString()
@@ -100,8 +97,6 @@ export class update extends plugin {
 
 
             let ret = await execSyncc(command)
-            const pnpmCmd = 'cd ./plugins/napcat-adapter&& pnpm i --registry=https://registry.npmmirror.com'
-            await execSyncc(pnpmCmd)
 
             if (ret.error) {
                 gitErr(ret.error, ret.stdout, e);
