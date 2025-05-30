@@ -22,14 +22,18 @@ pnpm install --filter=napcat-adapter
 ```
 
 #### 连接方式
-  - ⚠️本适配器的工作模式为正向WS连接，请确保`napcat-adapter`可以正常访问NapCat.OneBot所提供的端口
+
+- ⚠️ 本适配器的工作模式为**正向WS连接**，请确保 `napcat-adapter` 可以正常访问 NapCat.OneBot 所提供的 IP 和端口。
+- ⚠️ 如果 napcat-adapter 与 NapCat.OneBot 不在一个环境内（例如一方位于 Docker，WSL 系统），你可能需要进行额外的配置，或者查询 IP 地址并正确配置以确保连接正常。
+
+关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address) 
+
   1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
-  2. 在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
+  2. 配置完账号后，在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
 ![cfg-napcat](./other/cfg-napcat.png)
-  3. 打开`./config/bot.yaml`中，将“跳过登录icqq”启用
-  4. 安装本适配器后启动一次，打开`./plugins/napcat-adapter/config/config/cfg.yaml`
-  5. 编辑baseUrl地址为napcat-ws-server地址
-  6. 重启后即可享用
+  3. 打开Yunzai根目录下的`config/bot.yaml`文件，启用 “跳过登录icqq”，以解决多个适配器互相影响导致报错的问题。
+  4. 安装本适配器后启动一次，打开插件根目录下的`config/config/cfg.yaml`，编辑baseUrl地址为napcat-ws-server地址。
+  5. 重启Yunzai后即可享用
 
 #### 支持
 | 功能 | 支持情况 |
