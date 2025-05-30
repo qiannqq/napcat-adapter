@@ -162,8 +162,14 @@ class ncadapter {
         //     } catch (error) { }
         // }
 
-        Bot.nickname = this.bot.nickname
-        Bot.uin = this.bot.uin
+        /** 兼容trss、喵崽下的icqq */
+        /** 对于非trss环境下使用icqq，暂时的解决方案是不替换Bot.nickname、Bot.uin */
+        if(!Bot?.isOnline() && !nccommon.isTRSS()) {
+            Bot.nickname = this.bot.nickname
+            Bot.uin = this.bot.uin
+        } else if(nccommon.isTRSS()){
+            Bot.uin.push(this.bot.uin)
+        }
 
         /** 加载资源 */
         await this.LoadAll()
@@ -344,6 +350,11 @@ class ncadapter {
                     }
                     event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
                 }
+                break
+            case 'group_recall':
+                event = ['notice', 'notice.group', 'notice.group.recall']
+                data.notice_type = 'group'
+                data.sub_type = 'recall'
                 break
         };
         this.dealEvent(data, event)
