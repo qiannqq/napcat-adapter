@@ -23,7 +23,7 @@ pnpm install --filter=napcat-adapter
   - ⚠️本适配器为正向WS连接，请确保`napcat-adapter`可以正常访问NapCat.OneBot所提供的端口
   1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
   2. 在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
-![cfg-napcat](./apps/cfg-napcat.png)
+![cfg-napcat](./other/cfg-napcat.png)
   3. 打开`./config/bot.yaml`中，将“跳过登录icqq”启用
   4. 安装本适配器后启动一次，打开`./plugins/napcat-adapter/config/config/cfg.yaml`
   5. 编辑baseUrl地址为napcat-ws-server地址

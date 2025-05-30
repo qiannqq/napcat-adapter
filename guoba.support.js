@@ -1,19 +1,9 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import fs from 'fs';
 import yaml from 'yaml';
 import lodash from 'lodash'
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { cfg, nccommon } from './lib/index.js';
 
-function getconfig(file, name) {
-  const _path = process.cwd().replace(/\\/g, '/')
-  let cfgyaml = `${_path}/plugins/napcat-adapter/config/${file}/${name}.yaml`
-  const configData = fs.readFileSync(cfgyaml, 'utf8');
-  let config = yaml.parse(configData);
-  return { config };
-}
+let cfgPath = './plugins/napcat-adapter/config/cfg.yaml'
 
 export function supportGuoba() {
   return {
@@ -28,7 +18,7 @@ export function supportGuoba() {
       description: `兼容Miao-Yunzai的NapCat适配器`,
       icon: 'mdi:stove',
       iconColor: '#d19f56',
-      iconPath: path.join(__dirname, 'resources/logo.png') // 这里需要自己扔图片到resources目录下，否则锅巴会报错
+      iconPath: `${process.cwd().replace(/\\/g, '/')}/plugins/napcat-adapter/other/logo.png` // 这里需要自己扔图片到resources目录下，否则锅巴会报错
     },
     configInfo: {
       schemas: [
@@ -55,15 +45,13 @@ export function supportGuoba() {
         },
       ],
       async getConfigData() {
-        let { config } = getconfig(`config`, `cfg`)
-        return config;
+        return cfg();
       },
       async setConfigData(data, { Result }) {
         // 1.读取现有配置文件
-        const configFilePath = path.join(__dirname, 'config', 'cfg.yaml');
         let config = {};
-        if (fs.existsSync(configFilePath)) {
-          const configContent = fs.readFileSync(configFilePath, 'utf8');
+        if (fs.existsSync(cfgPath)) {
+          const configContent = fs.readFileSync(cfgPath, 'utf8');
           config = yaml.parse(configContent) || {};
         }
         // 2. 更新配置对象
@@ -72,9 +60,9 @@ export function supportGuoba() {
         }
         // 3. 将更新后的配置对象写回文件
         const updatedConfigYAML = yaml.stringify(config);
-        fs.writeFileSync(configFilePath, updatedConfigYAML, 'utf8');
-        logger.mark(`[NapCat适配器:配置文件]配置文件更新`)
-        return Result.ok({}, '保存成功~');
+        fs.writeFileSync(cfgPath, updatedConfigYAML, 'utf8');
+        nccommon.mark({ nickname: '配置文件', uin: 'cfg.yaml' }, '配置文件更新，重启后生效')
+        return Result.ok({}, '保存成功，重启后生效');
       }
     }
   }
