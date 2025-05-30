@@ -1,7 +1,9 @@
+![Napcat](https://gitee.com/qiannqq/napcat-adapter/raw/master/other/logo.png)
+
 # NapCat 适配器 NapCat-Adapter
 #### 简介:
 兼容Miao-Yunzai的NapCat适配器，旨在最大程度的兼容所有插件<br>
-[加入群聊](https://qm.qq.com/q/DP6Y6UxIqc) ~
+[加入官方群聊](https://qm.qq.com/q/DP6Y6UxIqc) ~
 #### 警告
   - **重要！** 请勿将`napcat-adapter（即本项目）`和`NapCat.OneBot`项目发布到“bilibili、抖音、快手”等媒体平台
   - 该适配器目前处于Beta开发阶段，依旧有许多未适配。
@@ -20,7 +22,7 @@ pnpm install --filter=napcat-adapter
 ```
 
 #### 连接方式
-  - ⚠️本适配器为正向WS连接，请确保`napcat-adapter`可以正常访问NapCat.OneBot所提供的端口
+  - ⚠️本适配器的工作模式为正向WS连接，请确保`napcat-adapter`可以正常访问NapCat.OneBot所提供的端口
   1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
   2. 在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
 ![cfg-napcat](./other/cfg-napcat.png)
@@ -41,6 +43,19 @@ pnpm install --filter=napcat-adapter
 | 发音乐卡片、赞我等 | ✅ |
 | 事件接受 | 部分支持，未来完善 |
 
+#### 常见问题
+   
+Q：我的插件/Bot日志产生了如下报错，该怎么解决？
+```
+[MiaoYz][xx:xx:xx.xxx][ERRO] ApiRejection {
+    code: XX,
+    message: 'client not online'
+}
+```
+A：报错信息里面的message若包含“ `client not online` ”信息，则是插件调用了ICQQ的Bot实例<br>
+解决办法：
+1. 用户：去对应插件提ISSUE，告诉开发者你用的是本适配器并附上日志截图
+2. 开发者：请改用e.bot或Bot\[Bot.uin\]
 
 #### 致谢
   - NapCat 会魔法的猫娘（？）
