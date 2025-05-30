@@ -3,7 +3,7 @@ import yaml from 'yaml';
 import lodash from 'lodash'
 import { cfg, nccommon } from './lib/index.js';
 
-let cfgPath = './plugins/napcat-adapter/config/cfg.yaml'
+let cfgPath = './plugins/napcat-adapter/config/config/cfg.yaml'
 
 export function supportGuoba() {
   return {
