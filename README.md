@@ -1,4 +1,4 @@
-![Napcat](https://gitee.com/qiannqq/napcat-adapter/raw/master/other/logo.png)
+<img src="./other/logo.png" width="30%" height="30%">
 
 # NapCat 适配器 NapCat-Adapter
 #### 简介:
@@ -58,7 +58,7 @@ A：报错信息里面的message若包含“ `client not online` ”信息，则
 2. 开发者：请改用e.bot或Bot\[Bot.uin\]
 
 #### 致谢
-  - NapCat 会魔法的猫娘（？）
+  - NapCat 魔法猫娘（？）
   - node-napcat-ts 本适配器的依赖
   - Lain-plugin 铃音插件，CV了部分消息处理源码（不然进度不会这么快）
 
