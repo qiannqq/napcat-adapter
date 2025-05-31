@@ -651,7 +651,50 @@ class ncadapter {
             ls: async(dirid) => await this.getGroupFileList(group_id, dirid),
             dir: async(dirid) => await this.getGroupFileList(group_id, dirid),
             rm: async(file_id) => await this.deleteGroupFile(group_id, file_id),
-            download: async(file_id) => await this.getGroupFileUrl(group_id, file_id)
+            download: async(file_id) => await this.getGroupFileUrl(group_id, file_id),
+            df: async() => await this.getGroupFileSystemInfo(group_id),
+            mkdir: async(name) => await this.mkdirGroupFolder(group_id, name),
+            stat: async(file_id) => {
+                let result = await this.getGroupFileList(group_id)
+                return result.find(file => file.file_id == file_id) || null
+            },
+            upload: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name)
+        }
+    }
+    async mkdirGroupFolder(group_id, folder_name) {
+        let result
+        try {
+            result = await this.napcat.create_group_file_folder(group_id, folder_name)
+            return {
+                fid: result.groupItem.folderInfo.folderId,
+                pid: result.groupItem.folderInfo.parentFolderId,
+                name: result.groupItem.folderInfo.folderName,
+                create_time: result.groupItem.folderInfo.createTime,
+                modify_time: result.groupItem.folderInfo.modifyTime,
+                user_id: Number(result.groupItem.folderInfo.createUin),
+                file_count: result.groupItem.folderInfo.totalFileCount,
+                is_dir: true
+            }
+        } catch (error) {
+            throw error
+        }
+    }
+    /**
+     * 获取群文件系统信息
+     * @param group_id 
+     */
+    async getGroupFileSystemInfo(group_id) {
+        let info
+        try {
+            info = await this.napcat.get_group_file_system_info({ group_id })
+            return { 
+                total: info.total_space, 
+                used: info.used_space, 
+                free: info.total_space - info.used_space, 
+                file_count: info.file_count, 
+                max_file_count: info.limit_count }
+        } catch (error) {
+            throw error
         }
     }
     /**

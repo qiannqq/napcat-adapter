@@ -16,8 +16,13 @@
   - 开发者非常需要这些反馈以尽最大努力完善适配器！拜托请提供正确的反馈信息！
 
 #### 安装方式
+国内推荐 Gitee源
 ```bash
 git clone --depth=1 https://gitee.com/qiannqq/napcat-adapter.git ./plugins/napcat-adapter
+```
+Github源
+```bash
+git clone --depth=1 https://github.com/qiannqq/napcat-adapter.git ./plugins/napcat-adapter
 ```
 安装依赖
 ```bash

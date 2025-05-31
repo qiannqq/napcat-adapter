@@ -25,7 +25,6 @@ body:
       options:
         - Miao-Yunzai
         - TRSS-Yunzai
-        - 其他
     validations:
       required: true
 
