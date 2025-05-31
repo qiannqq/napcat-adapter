@@ -266,7 +266,8 @@ class ncadapter {
                     remark: finfo.remark || finfo.nickname,
                     sex: finfo.sex,
                     user_id: finfo.user_id,
-                    user_uid: ''
+                    user_uid: '',
+                    uin: this.bot.uin
                 };
                 Bot[this.bot.uin].fl.set(data.user_id, body);
                 Bot.fl.set(data.user_id, body);
