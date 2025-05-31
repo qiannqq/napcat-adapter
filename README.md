@@ -64,10 +64,7 @@ Q：我的插件/Bot日志产生了如下报错，该怎么解决？
     message: 'client not online'
 }
 ```
-A：报错信息里面的message若包含“ `client not online` ”信息，则是插件调用了ICQQ的Bot实例<br>
-解决办法：
-1. 用户：去对应插件提ISSUE，告诉开发者你用的是本适配器并附上日志截图
-2. 开发者：请改用e.bot或Bot\[Bot.uin\]
+A：报错信息里面的message若包含“ `client not online` ”信息，请更新适配器 `#nc更新`
 
 #### 致谢
   - NapCat 魔法猫娘（？）
