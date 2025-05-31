@@ -9,3 +9,5 @@ reconnection:
   enable: true
   attempts: 10
   delay: 5000
+# 输出日志时是否连带Bot信息
+logbotinfo: true
