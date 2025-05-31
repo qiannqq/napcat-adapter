@@ -271,6 +271,7 @@ class ncadapter {
                 };
                 Bot[this.bot.uin].fl.set(data.user_id, body);
                 Bot.fl.set(data.user_id, body);
+                data.notice_type = 'friend'
                 break;
             case 'group_admin':
                 event = ['notice', 'notice.group', 'notice.group.admin'];
@@ -290,6 +291,7 @@ class ncadapter {
                 Bot.gml?.get(data.group_id)?.set(data.user_id, body);
                 data.set = data.sub_type === 'set'
                 data.sub_type = 'admin';
+                data.notice_type = 'group'
                 break;
             case 'group_increase':
                 event = ['notice', 'notice.group', 'notice.group.increase'];
@@ -309,6 +311,7 @@ class ncadapter {
                 Bot.gml?.get(data.group_id)?.set(data.user_id, body);
 
                 data.sub_type = 'increase';
+                data.notice_type = 'group'
                 break;
             case 'group_decrease':
                 event = ['notice', 'notice.group', 'notice.group.decrease'];
@@ -323,6 +326,7 @@ class ncadapter {
                 Bot[this.bot.uin].gml?.get(data.group_id)?.delete(data.user_id);
                 Bot.gml?.get(data.group_id)?.delete(data.user_id);
                 data.sub_type = 'decrease';
+                data.notice_type = 'group'
                 break;
             case 'group_ban':
                 if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
@@ -337,6 +341,8 @@ class ncadapter {
                     minfo.shutup_time = (Date.now() / 1000) + data.duration;
                     minfo.shutup = data.duration;
                 }
+                data.notice_type = 'group'
+                data.sub_type = 'ban'
                 event = ['notice', 'notice.group', 'notice.group.ban']
                 break;
             case 'notify':
