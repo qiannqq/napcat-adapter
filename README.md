@@ -1,6 +1,9 @@
-<img src="./other/logo.png" width="30%" height="30%">
-
 # NapCat 适配器 NapCat-Adapter
+
+<p align="center">
+    <img src="./other/logo.png" width="30%" height="30%">
+</p>
+
 #### 简介:
 兼容Miao-Yunzai的NapCat适配器，旨在最大程度的兼容所有插件<br>
 [加入官方群聊](https://qm.qq.com/q/DP6Y6UxIqc) ~
