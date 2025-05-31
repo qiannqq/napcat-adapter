@@ -24,7 +24,7 @@ export function supportGuoba() {
       schemas: [
         {
           component: 'Divider',
-          label: 'URL'
+          label: '连接设置'
         },
         {
           field: 'baseUrl',
@@ -38,11 +38,28 @@ export function supportGuoba() {
           }
         },
         {
+          field: 'accessToken',
+          label: '连接Token',
+          helpMessage: '非必填',
+          bottomHelpMessage: '非必填。如果设置了连接token，则需要填写',
+          component: 'Input',
+        },
+        {
           field: 'throwPromise',
           label: '错误抛出错误开关',
           bottomHelpMessage: '是否需要在触发 socket.error 时抛出错误, 默认关闭',
           component: 'Switch'
         },
+        {
+          component: 'Divider',
+          label: '杂项'
+        },
+        {
+          field: 'logbotinfo',
+          label: '打印Bot信息',
+          bottomHelpMessage: '输出日志时是否携带Bot信息',
+          component: 'Switch'
+        }
       ],
       async getConfigData() {
         return cfg();
