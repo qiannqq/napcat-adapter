@@ -356,6 +356,11 @@ class ncadapter {
                 data.notice_type = 'group'
                 data.sub_type = 'recall'
                 break
+            case 'friend_recall':
+                event = ['notice', 'notice.friend', 'notice.friend.recall']
+                data.notice_type = 'friend'
+                data.sub_type = 'recall'
+                break
         };
         this.dealEvent(data, event)
     }
@@ -1289,6 +1294,9 @@ class ncadapter {
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
         this.loadAutoRefresh()
+        if(!nccommon.isTRSS()) {
+            await import('../lib/bot.js')
+        }
     }
     /** 设置自动刷新 */
     async loadAutoRefresh() {
@@ -1374,7 +1382,8 @@ class ncadapter {
                 shutup_time_me: meInfo.shutup_time_me,
                 shutup_time_whole,
                 admin_flag: meInfo.admin_flag,
-                update_time: 0
+                update_time: 0,
+                uin: this.bot.uin
             }
             Bot[this.bot.uin].gl?.set(i.group_id, body)
             Bot.gl.set(i.group_id, body)
@@ -1385,7 +1394,8 @@ class ncadapter {
                     card: item.card || item.nickname,
                     shutup_time: item.shut_up_timestamp,
                     user_uid: ``,
-                    update_time: 0
+                    update_time: 0,
+                    uin: this.bot.uin
                 })
             }
             Bot[this.bot.uin].gml?.set(i.group_id, icMemberInfo)
@@ -1407,7 +1417,8 @@ class ncadapter {
                 remark: i.remark || i.nickname,
                 sex: i.sex,
                 user_id: i.user_id,
-                user_uid: ''
+                user_uid: '',
+                uin: this.bot.uin
             }
             Bot[this.bot.uin].fl.set(i.user_id, body)
             Bot.fl.set(i.user_id, body)
