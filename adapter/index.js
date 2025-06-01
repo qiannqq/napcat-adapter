@@ -152,16 +152,6 @@ class ncadapter {
             hookSendMsg: async (group_id, msg, msgid = false, user_id, recall, isHook) => { return { isNext: true, data: { group_id, msg, msgid, user_id, recall, isHook } } }
         }
 
-
-        /** 合并Bot，兼容老旧不规范插件 */
-        /** 或许有其他解决方法 */
-        // for (let i in Bot[this.bot.uin]) {
-        //     try {
-        //         delete Bot[i]
-        //         Bot[i] = Bot[this.bot.uin][i]
-        //     } catch (error) { }
-        // }
-
         /** 兼容trss、喵崽下的icqq */
         /** 对于非trss环境下使用icqq，暂时的解决方案是不替换Bot.nickname、Bot.uin */
         if(!nccommon.isTRSS() && !Bot?.isOnline()) {
