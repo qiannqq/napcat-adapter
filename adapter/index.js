@@ -1017,7 +1017,7 @@ class ncadapter {
         }
         let messages = []
         try {
-            messages = await this.napcat[forg.api]({ ...forg.body, message_seq, count })
+            messages = await this.napcat[forg.api]({ ...forg.body, message_seq, count, reverseOrder: true })
         } catch (error) { }
         if(messages.length === 0) return messages
 
