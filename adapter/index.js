@@ -1030,6 +1030,9 @@ class ncadapter {
          if(!isPrivate) m.group_name = group?.group_name || group_id
           m.atme = !!m.message.find(msg => msg.type === 'at' && msg.data?.qq == this.bot.uin)
           let result = await nccommon.getMessage(m.message, group_id, true, this.bot.uin, this.napcat)
+          if(result.message.length === 0) {
+            result.message.push({ type: 'text', text: '[已撤回]' })
+          }
           m = Object.assign(m, result)
           return m
         })
