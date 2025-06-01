@@ -149,7 +149,8 @@ class ncadapter {
                     return `${this.app_name} v${this.app_version}`
                 }
             },
-            hookSendMsg: async (group_id, msg, msgid = false, user_id, recall, isHook) => { return { isNext: true, data: { group_id, msg, msgid, user_id, recall, isHook } } }
+            hookSendMsg: async (group_id, msg, msgid = false, user_id, recall, isHook) => { return { isNext: true, data: { group_id, msg, msgid, user_id, recall, isHook } } },
+            sendGroupSign: async (group_id) => await this.sendGroupSign(group_id)
         }
 
         /** 兼容trss、喵崽下的icqq */
@@ -646,6 +647,7 @@ class ncadapter {
             sendFile: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name),
             mute_left,
             fs: this.groupfs(group_id),
+            sign: async() => await this.sendGroupSign(group_id)
         }
     }
     groupfs(group_id) {
@@ -661,6 +663,13 @@ class ncadapter {
                 return result.find(file => file.file_id == file_id) || null
             },
             upload: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name)
+        }
+    }
+    async sendGroupSign(group_id) {
+        try {
+            return await this.napcat.send_group_sign({ group_id })
+        } catch (error) {
+            throw error
         }
     }
     async mkdirGroupFolder(group_id, folder_name) {
