@@ -36,8 +36,8 @@ pnpm install --filter=napcat-adapter
 
 关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address) 
 
-  1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
-  2. 配置完账号后，在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
+  1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，默认登录密码为`napcat`
+  2. 扫码登录完账号后，在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
 ![cfg-napcat](./other/cfg-napcat.png)
   3. 打开Yunzai根目录下的`config/bot.yaml`文件，启用 “跳过登录icqq”，以解决多个适配器互相影响导致报错的问题。
   4. 安装本适配器后启动一次，打开插件根目录下的`config/config/cfg.yaml`，编辑baseUrl地址为napcat-ws-server地址，并正确配置端口。如果你在配置WebSocket服务器时输入了token，请**取消配置文件里token的注释，并编辑为你在WebSocket服务器配置的token**。
