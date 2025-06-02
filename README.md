@@ -34,7 +34,8 @@ pnpm install --filter=napcat-adapter
 - ⚠️ 本适配器的工作模式为**正向WS连接**，请确保 `napcat-adapter` 可以正常访问 NapCat.OneBot 所提供的 IP 和端口。
 - ⚠️ 如果 napcat-adapter 与 NapCat.OneBot 不在一个环境内（例如一方位于 Docker，WSL 系统），你可能需要进行额外的配置，或者查询 IP 地址并正确配置以确保连接正常。
 
-关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address) 
+关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address)<br>
+关于 Docker 配置端口映射请参考：[Docker镜像配置端口](https://www.doubao.com/thread/w76de7e1b8088ac44)
 
   1. 安装并打开NapCat.OneBot，登录"http://你的IP地址:6099/webui"，秘钥默认为`napcat`
   2. 配置完账号后，在网络配置里创建一个 **WebSocket服务器** ，并启用<br>
