@@ -274,6 +274,8 @@ class ncadapter {
 
                 body = {
                     ...minfo,
+                    is_admin: minfo.role === 'admin',
+                    is_owner: minfo.role === 'owner',
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
@@ -308,16 +310,24 @@ class ncadapter {
                 event = ['notice', 'notice.group', 'notice.group.decrease'];
                 if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                 let quitMsg;
+                /** 判断是否是Bot */
+                let isBot = data.user_id == this.bot.uin
                 if(data.sub_type == 'leave') {
                     quitMsg = `退出`
                 } else {
                     quitMsg = `被${data.operator_id}踢出`
                 };
-                nccommon.info(this.bot, `群员减少`, `${data.user_id}${quitMsg}群${data.group_id}`);
-                Bot[this.bot.uin].gml?.get(data.group_id)?.delete(data.user_id);
-                Bot.gml?.get(data.group_id)?.delete(data.user_id);
-                data.sub_type = 'decrease';
-                data.notice_type = 'group'
+                nccommon.info(this.bot, isBot ? `群减少` : `群员减少`, `${isBot ? `机器人`: data.user_id}${quitMsg}群${data.group_id}`);
+                /** 是Bot则删除群，反之删除群成员 */
+                if(isBot) {
+                    Bot[this.bot.uin].gml.delete(data.group_id)
+                    Bot[this.bot.uin].gl.delete(data.group_id)
+                } else {
+                    Bot[this.bot.uin].gml?.get(data.group_id)?.delete(data.user_id);
+                    Bot.gml?.get(data.group_id)?.delete(data.user_id);
+                    data.sub_type = 'decrease';
+                    data.notice_type = 'group'
+                }
                 break;
             case 'group_ban':
                 if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
@@ -1378,6 +1388,7 @@ class ncadapter {
                 raw_info: memberInfo.find((item) => item.user_id == this.bot.uin),
                 admin_flag: false
             }
+
             meInfo.shutup_time_me = meInfo.raw_info.shut_up_timestamp
             if (meInfo.raw_info.role == 'admin') meInfo.admin_flag = true
             let body = {
@@ -1402,6 +1413,9 @@ class ncadapter {
                     ...item,
                     card: item.card || item.nickname,
                     shutup_time: item.shut_up_timestamp,
+                    is_admin: item.role === 'admin',
+                    is_owner: item.role === 'owner',
+                    is_member: item.role === 'member',
                     user_uid: ``,
                     update_time: 0,
                     uin: this.bot.uin
