@@ -414,7 +414,7 @@ class ncadapter {
             e.raw_message = raw_message
             e.log_message = log_message
             e.toString = () => ToString
-            if (file) e.file = file
+            if (file) e.file = { fid: file.file_id, name: file.file, url: file.url }
             if (source) e.source = source
 
             /** 群消息 */
@@ -655,7 +655,7 @@ class ncadapter {
             allowAnony: async () => false, // 无效功能
             getChatHistory: async(seq, c) => await this.getChatHistory(group_id, seq, c),
             markRead: async(seq = 0) => await this.makeRead({ group_id }),
-            // getFileUrl, 没整明白，暂时不写
+            getFileUrl: async (file_id) => await this.getGroupFileUrl(group_id, file_id),
             // shareMusic, 没整明白，暂时不写
             getMemberMap: async(no_cache = false) => await this.getMemberMap(group_id, no_cache),
             getAvatarUrl: (size = 0, history = 0) => this.getAvatarUrl(group_id, size, history),
@@ -737,7 +737,7 @@ class ncadapter {
      */
     async getGroupFileUrl(group_id, file_id) { 
         try {
-            return await this.napcat.get_group_file_url({ group_id, file_id })
+            return (await this.napcat.get_group_file_url({ group_id, file_id })).url
         } catch (error) {
             throw error
         }
