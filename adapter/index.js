@@ -303,6 +303,8 @@ class ncadapter {
                 minfo = minfo.find(m => m.user_id == data.user_id);
                 body = {
                     ...minfo,
+                    is_admin: minfo.role === 'admin',
+                    is_owner: minfo.role === 'owner',
                     shutup: minfo.shut_up_timestamp,
                     user_uid: '',
                     update_time: 0
@@ -997,6 +999,8 @@ class ncadapter {
             await Promise.all(minfo.map(i => {
                 let body = {
                     ...i,
+                    is_admin: i.role === 'admin',
+                    is_owner: i.role === 'owner',
                     shutup_time: i.shut_up_timestamp,
                     user_uid: ``,
                     update_time: 0
