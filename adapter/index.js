@@ -150,7 +150,15 @@ class ncadapter {
                 }
             },
             hookSendMsg: async (group_id, msg, msgid = false, user_id, recall, isHook) => { return { isNext: true, data: { group_id, msg, msgid, user_id, recall, isHook } } },
-            sendGroupSign: async (group_id) => await this.sendGroupSign(group_id)
+            sendGroupSign: async (group_id) => await this.sendGroupSign(group_id),
+            getGroupMemberInfo: async(group_id, user_id, no_cache = false) => {
+                if(no_cache) await this.loadGroups()
+                try {
+                    return Bot[this.bot.uin].gml.get(group_id).get(user_id)
+                } catch (error) {
+                    return {}
+                }
+            }
         }
 
         /** 兼容trss、喵崽下的icqq */
