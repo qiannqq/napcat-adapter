@@ -376,6 +376,7 @@ class ncadapter {
      * 处理事件
      * 感谢止语姐姐留下的遗产(bushi)
      * @param data 
+     * @param event 事件列表
      * @returns 
      */
     async dealEvent(data, event = []) {
@@ -794,8 +795,8 @@ class ncadapter {
         if(Buffer.isBuffer(file)) {
             file = `base64://${file.toString('base64')}`
         } else if(nccommon.isLocalPath(file)) {
-            file = nccommon.getFilePath(file)
-            name = name ? name : path.basename(file)
+            name = name ? name : path.basename(nccommon.getFilePath(file))
+            file = nccommon.getFile(file)
         }
         let cans = {
             file,
