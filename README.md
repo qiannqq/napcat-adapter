@@ -44,6 +44,22 @@ pnpm install --filter=napcat-adapter
   4. 安装本适配器后启动一次，打开插件根目录下的`config/config/cfg.yaml`，编辑baseUrl地址为刚刚你在Napcat WebUI中配置的地址（例如：ws://0.0.0.0:3000）。如果你在配置WebSocket服务器时输入了token，请**取消配置文件里token的注释，并编辑为你在WebSocket服务器配置的token**。
   5. 重启Yunzai后即可享用
 
+#### 关于文件
+  - Websocket支持小文件 **（图片、视频、音频、文件等任何形式的数据）** 传输，但单帧最大为16MB，因此文件传输大小被限制为10MB。超过10MB的文件将直接让Napcat读取本地文件
+  - 如果你有大文件传输的需求，请确保Napcat.OneBot可以访问Miao-Yunzai的目录，因使用的是绝对路径，所以你需要让Napcat.OneBot访问的Miao-Yunzai路径与真实路径完全一致
+  1. Docker
+    <br>
+    - 如果你使用的是Docker版Napcat.OneBot，需要在启动镜像时配置目录映射，映射方法请自行询问AI模型或百度搜索
+  2. Windows
+    <br>
+    - 一般来说，Windows下的Miao-Yunzai和Napcat.OneBot的目录是完全一致的，所以不需要做任何配置。
+  3. WSL
+    <br>
+    - 暂无解决方案
+  4. 跨设备（完全不在同一设备的情况）
+    <br>
+    - 暂无解决方案
+
 #### 支持
 | 功能 | 支持情况 |
 |---|---|
