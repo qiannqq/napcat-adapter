@@ -357,16 +357,25 @@ class ncadapter {
                 event = ['notice', 'notice.group', 'notice.group.ban']
                 break;
             case 'notify':
-                if(data.sub_type == 'poke') {
-                    if(data?.group_id) {
-                        if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
-                        data.notice_type == 'group'
-                        nccommon.info(this.bot, `群${data.group_id}成员${data.target_id}被${data.user_id}戳一戳`)
-                    } else { 
-                        data.notice_type == 'friend'
-                        nccommon.info(this.bot, `好友${data.target_id}被${data.user_id}戳一戳`)
-                    }
-                    event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
+                switch(data.sub_type){
+                    case 'poke':
+                        if(data?.group_id) {
+                            if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
+                            data.notice_type == 'group'
+                            nccommon.info(this.bot, `群${data.group_id}成员${data.target_id}被${data.user_id}戳一戳`)
+                        } else { 
+                            data.notice_type == 'friend'
+                            nccommon.info(this.bot, `好友${data.target_id}被${data.user_id}戳一戳`)
+                        }
+                        event = ['notice', `notice.${data.notice_type}`, `notice.${data.notice_type}.poke`]
+                        break
+                    case 'input_status':
+                        event = ['internal', 'internal.input']
+                        data.post_type = 'internal'
+                        data.notice_type = 'input'
+                        data.message = data.event_type === 1 ? '对方正在输入' : '对方结束输入'
+                        nccommon.info(this.bot, `${data.message} <= 私聊:${Bot[this.bot.uin].fl.get(data.user_id)?.nickname || ''}(${data.user_id})`)
+                        break
                 }
                 break
             case 'group_recall':
@@ -378,6 +387,14 @@ class ncadapter {
                 event = ['notice', 'notice.friend', 'notice.friend.recall']
                 data.notice_type = 'friend'
                 data.sub_type = 'recall'
+                break
+            case 'bot_offline':
+                event = ['system', 'system.offline', 'system.offline.kickoff']
+                data.post_type = 'system'
+                data.notice_type = 'offline'
+                data.sub_type = 'kickoff'
+                nccommon.error(this.bot, `Bot已离线`) // 掉线警告
+                nccommon.error(this.bot, data.message)
                 break
         };
         this.dealEvent(data, event)
