@@ -1082,6 +1082,7 @@ class ncadapter {
           if(result.message.length === 0) {
             result.message.push({ type: 'text', text: '[已撤回]' })
           }
+          result.message = result.message.filter(a => (a.type !== 'text')||(a.type === 'text' && a.text !== ''))
           m = Object.assign(m, result)
           return m
         })
