@@ -1,0 +1,11 @@
+[
+    {
+        "baseUrl": "ws://localhost:3001",
+        "throwPromise": false,
+        "reconnection": {
+            "enable": true,
+            "attempts": 10,
+            "delay": 5000
+        }
+    }
+]

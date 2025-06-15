@@ -27,6 +27,13 @@ export function supportGuoba() {
           label: '连接设置'
         },
         {
+          field: 'multiple',
+          label: '多Bot',
+          bottomHelpMessage: "是否开启连接多个Napcat.OneBot，开启后需在“./plugins/napcat-adapter/config/botlist.json”配置多个连接",
+          required: true,
+          component: 'Switch'
+        },
+        {
           field: 'baseUrl',
           label: 'Napcat地址',
           helpMessage: '仅支持Websocket地址',

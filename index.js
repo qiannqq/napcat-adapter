@@ -9,9 +9,29 @@ logger.mark(`${logger.blue('[NapCat-Adapter]')} version ${version}`)
 logger.mark(`${logger.blue(`[NapCat-Adapter]`)} repository https://github.com/qiannqq/napcat-adapter`)
 logger.mark(`===============`)
 
+let Botlist = []
+
+if(cfg().multiple) {
+    let fs = await import('fs/promises')
+    try {
+        Botlist = JSON.parse(await fs.readFile('./plugins/napcat-adapter/config/config/botlist.json', 'utf-8'))
+    } catch (error) {
+        throw new Error('[Napcat-Adapter] 配置文件读取失败', error)
+    }
+} else {
+    Botlist = [cfg()]
+}
+
+if(!nccommon.isTRSS()) {
+    await import('./lib/uin.js')
+    if(!Bot?.isOnline()) Bot.nickname = 'Miao-Yunzai'
+}
+
 /** 创建nc实例并初始化 */
-const nc = new ncadapter(cfg());
-nc.init()
+for (let i of Botlist) {
+    const nc = new ncadapter(i);
+    nc.init()
+}
 
 let ncu = await import('./other/u.js')
 

@@ -1,5 +1,7 @@
 # ws地址
 baseUrl: "ws://127.0.0.1:2985"
+# 是否连接多个Napcat.OneBot，开启后需在"plugins/napcat-adapter/config/config/botlist.yaml"中填写连接信息
+multiple: false
 # Token ↓
 # accessToken: "your token"
 # 是否需要在触发 socket.error 时抛出错误, 默认关闭

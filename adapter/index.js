@@ -31,7 +31,7 @@ class ncadapter {
         }
         nccommon.mark(this.bot, `已连接`)
         // 调试，全局声明napcat
-        global.napcat = this.napcat
+        // global.napcat = this.napcat
         
         await this.pb()
         await this.BotInit()
@@ -158,17 +158,22 @@ class ncadapter {
                 } catch (error) {
                     return {}
                 }
-            }
+            },
+            napcat: this.napcat
         }
 
         /** 兼容trss、喵崽下的icqq */
         /** 对于非trss环境下使用icqq，暂时的解决方案是不替换Bot.nickname、Bot.uin */
-        if(!nccommon.isTRSS() && !Bot?.isOnline()) {
-            Bot.nickname = this.bot.nickname
-            Bot.uin = this.bot.uin
-        } else if(nccommon.isTRSS()){
-            Bot.uin.push(this.bot.uin)
-        }
+        // if(!nccommon.isTRSS() && !Bot?.isOnline()) {
+        //     // Bot.nickname = this.bot.nickname
+        //     // Bot.uin = this.bot.uin
+        //     Bot.uin.push(this.bot.uin)
+        // } else if(nccommon.isTRSS()){
+        //     Bot.uin.push(this.bot.uin)
+        // }
+
+        Bot.uin.push(this.bot.uin)
+
 
         /** 加载资源 */
         await this.LoadAll()
@@ -424,7 +429,7 @@ class ncadapter {
         /** 消息事件 */
         const messagePostType = async function () {
             /** 处理message、引用消息、toString、raw_message */
-            const { message, ToString, raw_message, log_message, source, file, seq } = await nccommon.getMessage(data.message, group_id, true, this.bot.uin, this.napcat)
+            const { message, ToString, raw_message, log_message, source, file, seq } = await nccommon.getMessage(data.message, group_id, true, this.bot.uin, this.napcat, message_id)
 
             /** 通用数据 */
             e.message = message
@@ -1347,6 +1352,7 @@ class ncadapter {
         if(!nccommon.isTRSS()) {
             await import('../lib/bot.js')
         }
+        if(!Bot?.isOnline()) Bot.nickname = this.bot.nickname
     }
     /** 设置自动刷新 */
     async loadAutoRefresh() {

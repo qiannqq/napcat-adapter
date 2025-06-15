@@ -81,7 +81,11 @@ Q：我的插件/Bot日志产生了如下报错，该怎么解决？
     message: 'client not online'
 }
 ```
-A：报错信息里面的message若包含“ `client not online` ”信息，请更新适配器 `#nc更新`
+A：报错信息里面的message若包含“ `client not online` ”信息，请更新适配器 `#nc更新`<br><br>
+Q: 为什么我装了`napcat-adapter`，`ws-plugin`会报错？<br>
+A: 在`ws-plugin`插件文件夹中，按以下路径找到文件`components/Version.js`，将`const isTrss = !!Array.isArray(Bot.uin)`修改为`const isTrss = isMiao ? false : true`。可以使用`ctrl+h`快速替换<br><br>
+Q: 如何连接多个Napcat？<br>
+A: 在锅巴的插件配置中打开`多Bot`选项，随后按照选项下提示在对应文件进行配置即可。
 
 #### 致谢
   - NapCat 魔法猫娘（？）
