@@ -45,39 +45,46 @@ pnpm install --filter=napcat-adapter
   5. 重启Yunzai后即可享用
 
 #### 关于文件
-  - Websocket支持小文件 **（图片、视频、音频、文件等任何形式的数据）** 传输，但单帧最大为16MB，因此文件传输大小被限制为10MB。超过10MB的文件将直接让Napcat读取本地文件
-  - 如果你有大文件传输的需求，请确保Napcat.OneBot可以访问Miao-Yunzai的目录，因使用的是绝对路径，所以你需要让Napcat.OneBot访问的Miao-Yunzai路径与真实路径完全一致
-  1. Docker
-    <details><summary>1Panel</summary>
-      首先登录进入面板，然后点击左侧边栏的“容器”，找到你 **现在使用** 的Napcat容器，然后点击编辑
-      ![1Panel-1](./other/docker-1p1.jpg)
-      找到如图所示的目录挂载，添加一个，选择本机目录，左边本机目录选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写
-      ![1Panel-2](./other/docker-1p2.jpg)
+- Websocket支持小文件 **（图片、视频、音频、文件等任何形式的数据）** 传输，但单帧最大为16MB，因此文件传输大小被限制为10MB。超过10MB的文件将直接让Napcat读取本地文件
+- 如果你有大文件传输的需求，请确保Napcat.OneBot可以访问Miao-Yunzai的目录，因使用的是绝对路径，所以你需要让Napcat.OneBot访问的Miao-Yunzai路径与真实路径完全一致
+
+1. **Docker**
+    <details>
+      <summary>1Panel</summary>
+      
+      首先登录进入面板，然后点击左侧边栏的“容器”，找到你 **现在使用** 的Napcat容器，然后点击编辑  
+      ![1Panel-1](./other/docker-1p1.jpg)  
+      找到如图所示的目录挂载，添加一个，选择本机目录，左边本机目录选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写  
+      ![1Panel-2](./other/docker-1p2.jpg)  
       完成后保存即可
     </details>
-    <details><summary>宝塔面板</summary>
-      首先登录进入面板，然后点击左侧边栏的“Docker”，点击上面“容器”，找到你 **现在使用** 的Napcat容器，然后点击管理
-      ![BT-1](./other/docker-bt1.jpg)
-      找到左侧编辑容器，点击更多设置，添加一个“挂载/映射”，选择“本机目录”，选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写
-      ![BT-2](./other/docker-bt2.jpg)
-      完成后滑到最底下点击保存容器配置即可
+    
+    <details>
+      <summary>宝塔面板</summary>
+      
+      首先登录进入面板，然后点击左侧边栏的“Docker”，点击上面“容器”，找到你 **现在使用** 的Napcat容器，然后点击管理  
+      ![BT-1](./other/docker-bt1.jpg)  
+      找到左侧编辑容器，点击更多设置，添加一个“挂载/映射”，选择“本机目录”，选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写  
+      ![BT-2](./other/docker-bt2.jpg)  
+      完成后滑到最底下点击保存容器配置即可  
       ![BT-3](./other/docker-bt3.jpg)
     </details>
-    <details><summary>其他还在烧烤中</summary>
-      都说了还在烧烤中看不到吗？
+    
+    <details>
+      <summary>其他还在烧烤中</summary>
+      
+      都说了还在烧烤中看不到吗？  
       ![表情](https://gitee.com/qiannqq/Gi-plugin/raw/df8419c845885efa4432d4a6d3346e7a72c03567/resources/img/cd.jpg)
     </details>
 
-  2. Windows
-    <br>
-    - 一般来说，Windows下的Miao-Yunzai和Napcat.OneBot的目录是完全一致的，所以不需要做任何配置。
-  3. WSL
-    <br>
-    - 暂无解决方案
-  4. 跨设备（完全不在同一设备的情况）
-    <br>
-    - 暂无解决方案
+2. **Windows**
+   - 一般来说，Windows下的Miao-Yunzai和Napcat.OneBot的目录是完全一致的，所以不需要做任何配置。
 
+3. **WSL**
+   - 暂无解决方案
+
+4. **跨设备（完全不在同一设备的情况）**
+   - 暂无解决方案
 #### 支持
 | 功能 | 支持情况 |
 |---|---|
