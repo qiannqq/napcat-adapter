@@ -33,21 +33,48 @@ class ncadapter {
         // 调试，全局声明napcat
         // global.napcat = this.napcat
         
-        await this.pb()
+        await this.modelInit()
+        await this.icqq()
         await this.BotInit()
     }
-    /** 开启一个可以自己编写新魔法的奇妙魔法阵 */
-    async pb() {
-        let icqq
-        for (const i of ["Model", "node_modules"]) try {
+    /** 加载ICQQ相关方法 */
+    async icqq() {
+        let icqq = {}
+        for (const i of ["node_modules"]) try {
             const dir = `${path.resolve(process.cwd(), i)}/icqq/`
             fs.statSync(dir)
-            icqq = (await import(`file://${dir}lib/core/index.js`)).default
+            icqq.message = await import(`file://${dir}lib/message/index.js`)
             break
         } catch (err) {
-            icqq = err
+            logger.error(err)
         }
         Bot.icqq = icqq
+    }
+    async modelInit() {
+        let modelList = [{ name: "protobuf", path: '../lib/utils/protobuf.js', errmsg: '方法：setTode 将不可用' }]
+        for (let i of modelList) {
+            if(!await this.importModel(i.name, i.path)){
+                nccommon.error(this.bot, i.errmsg)
+            }
+        }
+    }
+    /**
+     * 导入模块
+     */
+    async importModel(name, path) {
+        try {
+            this[name] = await import(path)
+            return true
+        } catch (error) {
+            let errMsg = error.stack
+            if(errMsg.includes('Cannot find package')) {
+                let modelName = error.stack.match(/'(.+?)'/g)[0].replace(/'/g, '')
+                nccommon.error(this.bot, `加载 ${name} 失败，缺少依赖 ${modelName}`)
+            } else {
+                nccommon.error(this.bot, `加载 ${name} 失败`, error)
+            }
+            return false
+        }
     }
     domain() {
         return [
@@ -690,7 +717,12 @@ class ncadapter {
             sendFile: async(file, pid, name) => await this.sendFile(undefined, group_id, file, pid, name),
             mute_left,
             fs: this.groupfs(group_id),
-            sign: async() => await this.sendGroupSign(group_id)
+            sign: async() => await this.sendGroupSign(group_id),
+            /**
+             * @param seq real_seq
+             * @returns 
+             */
+            setTodo: async(seq) => await this.setTodo(group_id, seq)
         }
     }
     groupfs(group_id) {
@@ -1044,6 +1076,27 @@ class ncadapter {
         } catch (error) {
             throw error
         }
+    }
+    /**
+     * 设置群待办
+     * @param group_id 
+     * @param seq 消息在群内的序号
+     */
+    async setTodo(group_id, seq) {
+        let res = await this.napcat.send_packet({
+            cmd: 'OidbSvcTrpcTcp.0xf90_1',
+            data: Buffer.from(this.protobuf.default.encode({
+                "1": 3984,
+                "2": 1,
+                "4": {
+                    "1": group_id,
+                    "2": seq,
+                    "3": -2091373631
+                }
+            })).toString("hex")
+        })
+        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
+        return res[3] == 0
     }
     /**
      * 获取历史消息
