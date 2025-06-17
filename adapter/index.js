@@ -51,7 +51,7 @@ class ncadapter {
         Bot.icqq = icqq
     }
     async modelInit() {
-        let modelList = [{ name: "protobuf", path: '../lib/utils/protobuf.js', errmsg: '方法：setTode 将不可用' }]
+        let modelList = [{ name: "protobuf", path: '../lib/utils/protobuf.js', errmsg: '方法：setTode、delTodo 将不可用' }]
         for (let i of modelList) {
             if(!await this.importModel(i.name, i.path)){
                 nccommon.error(this.bot, i.errmsg)
@@ -722,7 +722,8 @@ class ncadapter {
              * @param message_id 消息ID
              * @returns 
              */
-            setTodo: async(message_id) => await this.setTodo(group_id, message_id)
+            setTodo: async(message_id) => await this.setTodo(group_id, message_id),
+            delTodo: async() => await this.delTodo(group_id)
         }
     }
     groupfs(group_id) {
@@ -1078,6 +1079,24 @@ class ncadapter {
         }
     }
     /**
+     * 撤回群待办
+     * @param group_id 
+     */
+    async delTodo(group_id) {
+        let res = await this.napcat.send_packet({
+            cmd: 'OidbSvcTrpcTcp.0xf90_3',
+            data: Buffer.from(this.protobuf.default.encode({
+                "1": 3984,
+                "2": 3,
+                "4": {
+                    "1": group_id
+                }
+            })).toString("hex")
+        })
+        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
+        return res[3] == 0
+    }
+    /**
      * 设置群待办
      * @param group_id 
      * @param message_id
@@ -1093,8 +1112,7 @@ class ncadapter {
                 "2": 1,
                 "4": {
                     "1": group_id,
-                    "2": Number(real_seq),
-                    "3": -2091373631
+                    "2": Number(real_seq)
                 }
             })).toString("hex")
         })
