@@ -719,10 +719,10 @@ class ncadapter {
             fs: this.groupfs(group_id),
             sign: async() => await this.sendGroupSign(group_id),
             /**
-             * @param seq real_seq
+             * @param message_id 消息ID
              * @returns 
              */
-            setTodo: async(seq) => await this.setTodo(group_id, seq)
+            setTodo: async(message_id) => await this.setTodo(group_id, message_id)
         }
     }
     groupfs(group_id) {
@@ -1080,9 +1080,12 @@ class ncadapter {
     /**
      * 设置群待办
      * @param group_id 
-     * @param seq 消息在群内的序号
+     * @param message_id
      */
-    async setTodo(group_id, seq) {
+    async setTodo(group_id, message_id) {
+        let real_seq = (await this.napcat.get_group_msg_history({ group_id, message_seq: message_id, count: 1 }))?.messages
+        if(!real_seq || !real_seq.length) return false
+        real_seq = real_seq[0].real_seq
         let res = await this.napcat.send_packet({
             cmd: 'OidbSvcTrpcTcp.0xf90_1',
             data: Buffer.from(this.protobuf.default.encode({
@@ -1090,7 +1093,7 @@ class ncadapter {
                 "2": 1,
                 "4": {
                     "1": group_id,
-                    "2": seq,
+                    "2": Number(real_seq),
                     "3": -2091373631
                 }
             })).toString("hex")
