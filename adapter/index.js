@@ -131,7 +131,7 @@ class ncadapter {
                     info.group_name = group?.group_name || info.group_id
                     info.atme = !!info.message.find(i => i.type === 'at' && i.data?.qq === this.bot.uin)
                 }
-                let res = await nccommon.getMessage(info.message, null, true, this.bot.uin, this.napcat)
+                let res = await nccommon.getMessage(info.message, null, true, this.bot.uin, this.napcat, message_id)
                 info = Object.assign(info, res)
                 return info
             },
@@ -456,7 +456,15 @@ class ncadapter {
         /** 消息事件 */
         const messagePostType = async function () {
             /** 处理message、引用消息、toString、raw_message */
-            const { message, ToString, raw_message, log_message, source, file, seq } = await nccommon.getMessage(data.message, group_id, true, this.bot.uin, this.napcat, message_id)
+            const { message, ToString, raw_message, log_message, source, file, seq } = await nccommon.getMessage(
+                data.message, 
+                group_id, 
+                true, 
+                this.bot.uin, 
+                this.napcat, 
+                data.message_id, 
+                this.protobuf.default
+                )
 
             /** 通用数据 */
             e.message = message
@@ -723,7 +731,8 @@ class ncadapter {
              * @returns 
              */
             setTodo: async(message_id) => await this.setTodo(group_id, message_id),
-            delTodo: async() => await this.delTodo(group_id)
+            delTodo: async() => await this.delTodo(group_id),
+            setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times)
         }
     }
     groupfs(group_id) {
@@ -1079,6 +1088,30 @@ class ncadapter {
         }
     }
     /**
+     * 发言频率
+     * @param times 
+     */
+    async setMessageRateLimit(gid, times) {
+        times = Number(times)
+        if(isNaN(times) || ![0, 5, 10].includes(times)) {
+            return nccommon.error(this.bot, '设置发言频率失败: 参数不合法'), false
+        }
+        let res = await this.napcat.send_packet({
+            cmd: 'OidbSvc.0x89a_0', data: Buffer.from(this.protobuf.default.encode({
+                "1": 2202,
+                "2": 0,
+                "3": 0,
+                "4": {
+                    "1": Number(gid),
+                    "2": { "38": times }
+                },
+                "6": 'android 9.1.67'
+            })).toString("hex")
+        })
+        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
+        return res[3] === 0
+    }
+    /**
      * 撤回群待办
      * @param group_id 
      */
@@ -1157,7 +1190,7 @@ class ncadapter {
         messages = messages.map(async m => {
          if(!isPrivate) m.group_name = group?.group_name || group_id
           m.atme = !!m.message.find(msg => msg.type === 'at' && msg.data?.qq == this.bot.uin)
-          let result = await nccommon.getMessage(m.message, group_id, true, this.bot.uin, this.napcat)
+          let result = await nccommon.getMessage(m.message, group_id, true, this.bot.uin, this.napcat, m.message_seq, this.protobuf.default)
           if(result.message.length === 0) {
             result.message.push({ type: 'text', text: '[已撤回]' })
           }
