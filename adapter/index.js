@@ -734,6 +734,7 @@ class ncadapter {
             delTodo: async() => await this.delTodo(group_id),
             setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times),
             _setting: async(obj) => await this._setting(group_id, obj),
+            setGroupJoinType: async(type, question, answer) => await this.setGroupJoinType(group_id, type, question, answer),
         }
     }
     groupfs(group_id) {
@@ -1104,6 +1105,39 @@ class ncadapter {
         })
         res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
         return res[3] === 0
+    }
+    async setGroupJoinType(gid, type, question, answer) {
+        switch (type) {
+            /** 允许任何人加群 */
+            case "AnyOne":
+                return await this._setting(gid, { "16": 1, "29": 1 });
+            /** 不允许任何人加群 */
+            case "None":
+                return await this._setting(gid, { "16": 3 });
+            /** 需要身份验证 */
+            case "requireAuth":
+                return await this._setting(gid, { "16": 2 });
+            /** 需要回答问题并由管理员审核 */
+            case "QAjoin":
+                if (!question) {
+                    nccommon.error(this.bot, "设置加群方式失败: 未传入question");
+                    return;
+                }
+                return await this._setting(gid, { "30": question });
+            /** 正确回答问题 */
+            case "Correct":
+                if (!question) {
+                    nccommon.error(this.bot, "设置加群方式失败: 未传入question");
+                    return;
+                }
+                if (!answer) {
+                    nccommon.error(this.bot, "设置加群方式失败: 未传入answer");
+                    return;
+                }
+                return await this._setting(gid, { "30": question, "31": answer });
+            default:
+                nccommon.error(this.bot`设置加群方式失败: 未知类型${type}`);
+        }
     }
     /**
      * 发言频率
