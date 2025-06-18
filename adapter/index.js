@@ -1114,20 +1114,7 @@ class ncadapter {
         if(isNaN(times) || ![0, 5, 10].includes(times)) {
             return nccommon.error(this.bot, '设置发言频率失败: 参数不合法'), false
         }
-        let res = await this.napcat.send_packet({
-            cmd: 'OidbSvc.0x89a_0', data: Buffer.from(this.protobuf.default.encode({
-                "1": 2202,
-                "2": 0,
-                "3": 0,
-                "4": {
-                    "1": Number(gid),
-                    "2": { "38": times }
-                },
-                "6": 'android 9.1.67'
-            })).toString("hex")
-        })
-        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
-        return res[3] === 0
+        return await this._setting(gid, { "38": times })
     }
     /**
      * 撤回群待办
