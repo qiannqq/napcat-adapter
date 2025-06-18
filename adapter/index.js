@@ -732,7 +732,8 @@ class ncadapter {
              */
             setTodo: async(message_id) => await this.setTodo(group_id, message_id),
             delTodo: async() => await this.delTodo(group_id),
-            setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times)
+            setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times),
+            _setting: async(obj) => await this._setting(group_id, obj),
         }
     }
     groupfs(group_id) {
@@ -1086,6 +1087,23 @@ class ncadapter {
         } catch (error) {
             throw error
         }
+    }
+    async _setting(gid, obj) {
+        let res = await this.napcat.send_packet({
+            cmd: 'OidbSvc.0x89a_0',
+            data: Buffer.from(this.protobuf.default.encode({
+                "1": 2202,
+                "2": 0,
+                "3": 0,
+                "4": {
+                    "1": Number(gid),
+                    "2": obj
+                },
+                "6": 'android 9.1.67'
+            })).toString('hex')
+        })
+        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
+        return res[3] === 0
     }
     /**
      * 发言频率
