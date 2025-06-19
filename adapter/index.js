@@ -735,6 +735,12 @@ class ncadapter {
             setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times),
             _setting: async(obj) => await this._setting(group_id, obj),
             setGroupJoinType: async(type, question, answer) => await this.setGroupJoinType(group_id, type, question, answer),
+            /**
+             * 邀请好友加群
+             * @param user_uid uid非qq，uid与qq一样是固定不变的，在icqq获取到的在这里也能用
+             * @returns 
+             */
+            invite: async(user_uid) => await this.invite(group_id, user_uid)
         }
     }
     groupfs(group_id) {
@@ -1101,6 +1107,34 @@ class ncadapter {
                     "2": obj
                 },
                 "6": 'android 9.1.67'
+            })).toString('hex')
+        })
+        res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
+        return res[3] === 0
+    }
+    /**
+     * 邀请好友加群
+     * @param gid 群号
+     * @param uid user_uid，非qq （uid是固定不变的，icqq获取到的uid在这里也可以用）
+     */
+    async invite(gid, uid) {
+        let res = await this.napcat.send_packet({
+            cmd: 'OidbSvcTrpcTcp.0x758_1',
+            data: Buffer.from(this.protobuf.default.encode({
+                "1": 1880,
+                "2": 1,
+                "4": {
+                  "1": Number(gid),
+                  "2": {
+                    "1": String(uid),
+                  },
+                  "3": [],
+                  "4": 0,
+                  "5": 0,
+                  "6": [],
+                  "7": 0,
+                  "10": 0
+                }
             })).toString('hex')
         })
         res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
