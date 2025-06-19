@@ -76,7 +76,7 @@ class ncadapter {
             return false
         }
     }
-    domain() {
+    get domain() {
         return [
             "aq.qq.com",
             "buluo.qq.com",
@@ -101,7 +101,7 @@ class ncadapter {
         ]
     }
     async BotInit() {
-
+        /** Bot初始化 */
         Bot[this.bot.uin] = {
             bkn: '',
             cookies: {},
@@ -333,6 +333,9 @@ class ncadapter {
                 minfo = await this.napcat.get_group_member_list({ group_id: data.group_id, no_cache: true });
 
                 minfo = minfo.find(m => m.user_id == data.user_id);
+                data.sub_type = 'increase';
+                data.notice_type = 'group'
+                if(!minfo) break
                 body = {
                     ...minfo,
                     is_admin: minfo.role === 'admin',
@@ -345,8 +348,6 @@ class ncadapter {
                 Bot[this.bot.uin].gml?.get(data.group_id)?.set(data.user_id, body);
                 Bot.gml?.get(data.group_id)?.set(data.user_id, body);
 
-                data.sub_type = 'increase';
-                data.notice_type = 'group'
                 break;
             case 'group_decrease':
                 event = ['notice', 'notice.group', 'notice.group.decrease'];
@@ -1554,7 +1555,7 @@ class ncadapter {
         nccommon.debug(this.bot, '加载cookies...')
         Bot[this.bot.uin].cookies = {}
         Bot[this.bot.uin].bkn = ''
-        await Promise.all(this.domain().map(async (i) => {
+        await Promise.all(this.domain.map(async (i) => {
             const ck = await this.napcat.get_cookies({ domain: i });
             Bot[this.bot.uin].cookies[i] = ck.cookies;
             if (ck.bkn) {
@@ -1633,9 +1634,9 @@ class ncadapter {
                     is_admin: item.role === 'admin',
                     is_owner: item.role === 'owner',
                     is_member: item.role === 'member',
-                    user_uid: ``,
                     update_time: 0,
-                    uin: this.bot.uin
+                    uin: this.bot.uin,
+                    user_uid: ''
                 })
             }
             Bot[this.bot.uin].gml?.set(i.group_id, icMemberInfo)

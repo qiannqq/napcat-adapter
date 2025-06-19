@@ -9,7 +9,9 @@
 [加入官方群聊](https://qm.qq.com/q/DP6Y6UxIqc) ~
 #### 警告
   - **重要！** 请勿将`napcat-adapter（即本项目）`和`NapCat.OneBot`项目发布到“bilibili、抖音、快手”等国内平台（评论留言也不行！）
-  - 该适配器目前处于Beta开发阶段，依旧有许多未适配。
+
+#### 注意事项
+  - 本适配器虽然已趋于稳定，但并不保证完美兼容。我会持续优化该适配器，目的是做到接近icqq的使用感受，接近icqq的兼容性
 
 #### 反馈
   - 遇到任何“ICQQ”可用，但本适配器会报错的问题，请[创建issue](https://gitee.com/qiannqq/napcat-adapter/issues/new/choose)，选择`Bug报告`，然后提交即可，开发者有空就会回复
@@ -92,10 +94,10 @@ pnpm install --filter=napcat-adapter
 | 戳一戳 | ✅ |
 | 合并转发、嵌套转发 | ✅ |
 | 图片、图文混排、语音、视频 | ✅ |
-| 文件相关 | ✅(因Napcat原因，部分无法支持) |
+| 文件相关 | *✅ |
 | 椰奶发表说说、公告等api操作 | ✅ |
 | 发音乐卡片、赞我等 | ✅ |
-| 事件接受 | 部分支持，正在完善... |
+| 事件接受 | *✅ |
 
 #### 常见问题
    
@@ -110,12 +112,20 @@ A：报错信息里面的message若包含“ `client not online` ”信息，请
 Q: 为什么我装了`napcat-adapter`，`ws-plugin`会报错？<br>
 A: 在`ws-plugin`插件文件夹中，按以下路径找到文件`components/Version.js`，将`const isTrss = !!Array.isArray(Bot.uin)`修改为`const isTrss = isMiao ? false : true`。可以使用`ctrl+h`快速替换<br><br>
 Q: 如何连接多个Napcat？<br>
-A: 在锅巴的插件配置中打开`多Bot`选项，随后按照选项下提示在对应文件进行配置即可。
+A: 在锅巴的插件配置中打开`多Bot`选项，随后按照选项下提示在对应文件进行配置即可。<br><br>
+Q：嵌套转发中第二层转发消息打不开，显示加载失败<br>
+A：QQ 手机版自9.1.67(不含)后，就无法看到napcat所发送的嵌套消息了，目前PC版暂未受影响。请尽量避免发送嵌套转发消息。
 
 #### 致谢
   - NapCat 魔法猫娘（？）
   - node-napcat-ts 本适配器的依赖
   - Lain-plugin 铃音插件，CV了部分消息处理源码（不然进度不会这么快）
+
+#### 参与贡献
+  - 因个人原因又考虑到部分事件很少有插件监听，所以仍有部分事件还未编写。
+  - 在bot.yaml里开启debug日志输出，当收到事件后会打印日志和包体
+  - 你可以在创建issue，附上完整的事件包，我在看到后会第一时间进行兼容
+  - 当然你也可以直接创建PR，我收到通知后会尽快处理
 
 #### 赞助
   - [爱发电](https://afdian.com/a/qiannqq)
