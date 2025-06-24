@@ -35,7 +35,7 @@ class ncadapter {
         
         await this.modelInit()
         await this.icqq()
-        await this.BotInit()
+        this.BotInit()
     }
     /** 加载ICQQ相关方法 */
     async icqq() {
@@ -190,9 +190,10 @@ class ncadapter {
         }
 
         /** ？ */
-        if(nccommon.isTRSS() || this.cfg.isBotuinArray) {
+        if(nccommon.isTRSS()) {
             Bot.uin.push(this.bot.uin)
         } else if(!Bot?.isOnline()) {
+            Bot.adapter.push(this.bot.uin)
             Bot.uin = this.bot.uin
         }
 

@@ -25,6 +25,9 @@ if(cfg().multiple) {
 if(!nccommon.isTRSS() && cfg().isBotuinArray) {
     await import('./lib/uin.js')
     if(!Bot?.isOnline()) Bot.nickname = 'Miao-Yunzai'
+} else if(!nccommon.isTRSS()) {
+    Bot.adapter = []
+    if(Bot?.isOnline()) Bot.adapter.push(Bot.uin)
 }
 
 /** 创建nc实例并初始化 */
