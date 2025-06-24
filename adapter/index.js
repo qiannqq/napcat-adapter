@@ -624,6 +624,7 @@ class ncadapter {
     }
     pickUser(user_id) {
         return {
+            getFileUrl: async (file_id) => await this.getPrivateFileUrl(file_id),
             makeForwardMsg: (msgs) => this.makeForwardMsg(msgs),
             getAvatarUrl: (size = 0) => `https://q1.qlogo.cn/g?b=qq&s=${size}&nk=${user_id}`,
             recallMsg: async (msg_id) => await this.recallMsg(msg_id),
@@ -737,6 +738,13 @@ class ncadapter {
              * @returns 
              */
             invite: async(user_uid) => await this.invite(group_id, user_uid)
+        }
+    }
+    async getPrivateFileUrl(file_id) {
+        try {
+            return (await this.napcat.get_private_file_url({ file_id })).url
+        } catch (error) {
+            throw error
         }
     }
     groupfs(group_id) {
