@@ -13,3 +13,5 @@ reconnection:
   delay: 5000
 # 输出日志时是否连带Bot信息
 logbotinfo: true
+# 仅Miao-Yunzai 启用Bot.uin数组 （作用：椰奶状态显示多账号，但是会导致兼容性问题）
+isBotuinArray: false

@@ -189,18 +189,12 @@ class ncadapter {
             napcat: this.napcat
         }
 
-        /** 兼容trss、喵崽下的icqq */
-        /** 对于非trss环境下使用icqq，暂时的解决方案是不替换Bot.nickname、Bot.uin */
-        // if(!nccommon.isTRSS() && !Bot?.isOnline()) {
-        //     // Bot.nickname = this.bot.nickname
-        //     // Bot.uin = this.bot.uin
-        //     Bot.uin.push(this.bot.uin)
-        // } else if(nccommon.isTRSS()){
-        //     Bot.uin.push(this.bot.uin)
-        // }
-
-        Bot.uin.push(this.bot.uin)
-
+        /** ？ */
+        if(nccommon.isTRSS() || this.cfg.isBotuinArray) {
+            Bot.uin.push(this.bot.uin)
+        } else if(!Bot?.isOnline()) {
+            Bot.uin = this.bot.uin
+        }
 
         /** 加载资源 */
         await this.LoadAll()
