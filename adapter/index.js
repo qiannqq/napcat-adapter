@@ -171,7 +171,7 @@ class ncadapter {
             version: {
                 ...(await this.napcat.get_version_info()),
                 id: `QQ`,
-                name: `OneBotv11`,
+                name: `NapCat.Adapter`,
                 get version() {
                     return `${this.app_name} v${this.app_version}`
                 }

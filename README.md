@@ -1,4 +1,4 @@
-# NapCat 适配器 NapCat-Adapter
+# Yunzai NapCat 适配器 NapCat-Adapter
 
 <p align="center">
     <img src="./other/logo.png" width="30%" height="30%">
@@ -12,6 +12,15 @@
 
 #### 注意事项
   - 本适配器虽然已趋于稳定，但并不保证完美兼容。我会持续优化该适配器，目的是做到接近icqq的使用感受，接近icqq的兼容性
+
+#### 兼容的Yunzai版本
+| Yunzai版本 | 兼容情况 |
+| --- | --- |
+| Miao-Yunzai | ✅ |
+| TRSS-Yunzai | ✅ |
+| Yunzai-Next | ✅ |
+| Yunzai-Bot | ✅|
+| 理论上支持V3插件的Yunzai | ✅* |
 
 #### 反馈
   - 遇到任何“ICQQ”可用，但本适配器会报错的问题，请[创建issue](https://gitee.com/qiannqq/napcat-adapter/issues/new/choose)，选择`Bug报告`，然后提交即可，开发者有空就会回复
@@ -29,6 +38,8 @@ git clone --depth=1 https://github.com/qiannqq/napcat-adapter.git ./plugins/napc
 安装依赖
 ```bash
 pnpm install --filter=napcat-adapter
+# Yunzai-Next 请使用以下指令安装依赖
+# yarn install
 ```
 
 #### 连接方式
@@ -83,10 +94,10 @@ pnpm install --filter=napcat-adapter
    - 一般来说，Windows下的Miao-Yunzai和Napcat.OneBot的目录是完全一致的，所以不需要做任何配置。
 
 3. **WSL**
-   - 暂无解决方案
+   - 已有解决方法，正在编写中...
 
 4. **跨设备（完全不在同一设备的情况）**
-   - 暂无解决方案
+   - 已有解决方法，正在编写中...
 #### 支持
 | 功能 | 支持情况 |
 |---|---|
