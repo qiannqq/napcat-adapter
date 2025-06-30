@@ -1537,6 +1537,7 @@ class ncadapter {
             await import('../lib/bot.js')
         }
         if(!Bot?.isOnline()) Bot.nickname = this.bot.nickname
+        this.dealEvent({ post_type: 'system', notice_type: 'online' }, ['system', 'system.online'])
     }
     /** 设置自动刷新 */
     async loadAutoRefresh() {
