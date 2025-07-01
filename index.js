@@ -26,7 +26,7 @@ if(!nccommon.isTRSS() && cfg().isBotuinArray) {
     await import('./lib/uin.js')
     if(!Bot?.isOnline()) Bot.nickname = 'Miao-Yunzai'
 } else if(!nccommon.isTRSS()) {
-    Bot.adapter = []
+    if(!Bot.adapter || !Array.isArray(Bot.adapter)) Bot.adapter = []
     if(Bot?.isOnline()) Bot.adapter.push(Bot.uin)
 }
 
@@ -38,7 +38,7 @@ for (let i of Botlist) {
 
 let ncu = await import('./other/u.js')
 
-let apps = { 
+let apps = {
     "u": ncu[Object.keys(ncu)[0]]
 }
 export { apps }

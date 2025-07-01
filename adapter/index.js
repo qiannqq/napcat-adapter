@@ -32,7 +32,7 @@ class ncadapter {
         nccommon.mark(this.bot, `已连接`)
         // 调试，全局声明napcat
         // global.napcat = this.napcat
-        
+
         await this.modelInit()
         await this.icqq()
         this.BotInit()
@@ -271,7 +271,7 @@ class ncadapter {
     }
     /**
      * 处理通知事件
-     * @param data 
+     * @param data
      */
     async dealNotice(data) {
         nccommon.debug(this.bot, `收到通知事件`)
@@ -391,7 +391,7 @@ class ncadapter {
                             if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()
                             data.notice_type == 'group'
                             nccommon.info(this.bot, `群${data.group_id}成员${data.target_id}被${data.user_id}戳一戳`)
-                        } else { 
+                        } else {
                             data.notice_type == 'friend'
                             nccommon.info(this.bot, `好友${data.target_id}被${data.user_id}戳一戳`)
                         }
@@ -430,9 +430,9 @@ class ncadapter {
     /**
      * 处理事件
      * 感谢止语姐姐留下的遗产(bushi)
-     * @param data 
+     * @param data
      * @param event 事件列表
-     * @returns 
+     * @returns
      */
     async dealEvent(data, event = []) {
         if(event?.length == 0) return;
@@ -453,12 +453,12 @@ class ncadapter {
         const messagePostType = async function () {
             /** 处理message、引用消息、toString、raw_message */
             const { message, ToString, raw_message, log_message, source, file, seq } = await nccommon.getMessage(
-                data.message, 
-                group_id, 
-                true, 
-                this.bot.uin, 
-                this.napcat, 
-                data.message_id, 
+                data.message,
+                group_id,
+                true,
+                this.bot.uin,
+                this.napcat,
+                data.message_id,
                 this.protobuf.default
                 )
 
@@ -676,7 +676,7 @@ class ncadapter {
     }
     /**
      * 群对象
-     * @param group_id 
+     * @param group_id
      */
     pickGroup(group_id) {
         let is_admin = Bot[this.bot.uin].gml?.get(group_id)?.get(this.bot.uin)?.role === 'admin'
@@ -725,7 +725,7 @@ class ncadapter {
             sign: async() => await this.sendGroupSign(group_id),
             /**
              * @param message_id 消息ID
-             * @returns 
+             * @returns
              */
             setTodo: async(message_id) => await this.setTodo(group_id, message_id),
             delTodo: async() => await this.delTodo(group_id),
@@ -735,7 +735,7 @@ class ncadapter {
             /**
              * 邀请好友加群
              * @param user_uid uid非qq，uid与qq一样是固定不变的，在icqq获取到的在这里也能用
-             * @returns 
+             * @returns
              */
             invite: async(user_uid) => await this.invite(group_id, user_uid)
         }
@@ -789,17 +789,17 @@ class ncadapter {
     }
     /**
      * 获取群文件系统信息
-     * @param group_id 
+     * @param group_id
      */
     async getGroupFileSystemInfo(group_id) {
         let info
         try {
             info = await this.napcat.get_group_file_system_info({ group_id })
-            return { 
-                total: info.total_space, 
-                used: info.used_space, 
-                free: info.total_space - info.used_space, 
-                file_count: info.file_count, 
+            return {
+                total: info.total_space,
+                used: info.used_space,
+                free: info.total_space - info.used_space,
+                file_count: info.file_count,
                 max_file_count: info.limit_count }
         } catch (error) {
             throw error
@@ -809,9 +809,9 @@ class ncadapter {
      * 获取群文件下载链接
      * @param group_id 群ID
      * @param file_id 文件ID
-     * @returns 
+     * @returns
      */
-    async getGroupFileUrl(group_id, file_id) { 
+    async getGroupFileUrl(group_id, file_id) {
         try {
             return (await this.napcat.get_group_file_url({ group_id, file_id })).url
         } catch (error) {
@@ -820,9 +820,9 @@ class ncadapter {
     }
     /**
      * 删除群文件
-     * @param group_id 
-     * @param file_id 
-     * @returns 
+     * @param group_id
+     * @param file_id
+     * @returns
      */
     async deleteGroupFile(group_id, file_id) {
         let gflist = await this.getGroupFileList(group_id)
@@ -836,7 +836,7 @@ class ncadapter {
      * 群文件列表
      * @param group_id 群ID
      * @param folder_id 目录ID
-     * @returns 
+     * @returns
      */
     async getGroupFileList(group_id, folder_id) {
         let ncdata
@@ -870,12 +870,12 @@ class ncadapter {
     }
     /**
      * 发送文件
-     * @param user_id 
-     * @param group_id 
-     * @param file 
-     * @param folder 
-     * @param name 
-     * @returns 
+     * @param user_id
+     * @param group_id
+     * @param file
+     * @param folder
+     * @param name
+     * @returns
      */
     async sendFile(user_id, group_id, file, folder, name) {
         if(Buffer.isBuffer(file)) {
@@ -898,9 +898,9 @@ class ncadapter {
     }
     /**
      * 处理加群请求
-     * @param flag 
-     * @param approve 
-     * @param reason 
+     * @param flag
+     * @param approve
+     * @param reason
      */
     async setGroupReq(flag, approve, reason) {
         let res = true
@@ -913,10 +913,10 @@ class ncadapter {
     }
     /**
      * 处理好友请求
-     * @param flag 
-     * @param approve 
-     * @param remark 
-     * @returns 
+     * @param flag
+     * @param approve
+     * @param remark
+     * @returns
      */
     async setFriendReq(flag, approve, remark) {
         let res = true
@@ -929,9 +929,9 @@ class ncadapter {
     }
     /**
      * 已读
-     * @param user_id 
-     * @param times 
-     * @returns 
+     * @param user_id
+     * @param times
+     * @returns
      */
     async markRead(user_id, times) {
         let res = true
@@ -944,8 +944,8 @@ class ncadapter {
     }
     /**
      * 你谁
-     * @param user_id 
-     * @returns 
+     * @param user_id
+     * @returns
      */
     async getSimpleInfo(user_id){
         let res
@@ -962,9 +962,9 @@ class ncadapter {
     }
     /**
      * 赞
-     * @param user_id 
-     * @param times 
-     * @returns 
+     * @param user_id
+     * @param times
+     * @returns
      */
     async thumbUp(user_id, times) {
         let res = true
@@ -979,16 +979,16 @@ class ncadapter {
      * 回添双向好友
      * @param seq 好友申请序号
      * @param remark 备注
-     * @returns 
+     * @returns
      */
     async addFriendBack(seq, remark = '') {
         return false
     }
     /**
      * 发送群公告
-     * @param group_id 
-     * @param content 
-     * @returns 
+     * @param group_id
+     * @param content
+     * @returns
      */
     async announce(group_id, content) {
         let res = true
@@ -1002,9 +1002,9 @@ class ncadapter {
     }
     /**
      * 移除群精华
-     * @param seq 
-     * @param rand 
-     * @returns 
+     * @param seq
+     * @param rand
+     * @returns
      */
     async removeEssence(seq, rand) {
         let res = `移除群精华成功`
@@ -1021,8 +1021,8 @@ class ncadapter {
     /**
      * 群加精化
      * @param seq
-     * @param rand 
-     * @returns 
+     * @param rand
+     * @returns
      */
     async addEssence(seq, rand) {
         let res = `设置精华成功`
@@ -1037,8 +1037,8 @@ class ncadapter {
     }
     /**
      * 获取at全体成员 剩余次数
-     * @param group_id 
-     * @returns 
+     * @param group_id
+     * @returns
      */
     async getAtAllRemainder(group_id) {
         let res
@@ -1050,10 +1050,10 @@ class ncadapter {
 
     /**
      * 取群头
-     * @param group_id 
-     * @param size 
-     * @param history 
-     * @returns 
+     * @param group_id
+     * @param size
+     * @param history
+     * @returns
      */
     getAvatarUrl(group_id, size, history) {
         let history_url = group_id
@@ -1064,9 +1064,9 @@ class ncadapter {
     }
     /**
      * 获取群成员列表
-     * @param gid 
-     * @param no_cache 
-     * @returns 
+     * @param gid
+     * @param no_cache
+     * @returns
      */
     async getMemberMap(gid, no_cache = false) {
         let gml = Bot[this.bot.uin].gml?.get(gid)
@@ -1179,7 +1179,7 @@ class ncadapter {
     }
     /**
      * 发言频率
-     * @param times 
+     * @param times
      */
     async setMessageRateLimit(gid, times) {
         times = Number(times)
@@ -1190,7 +1190,7 @@ class ncadapter {
     }
     /**
      * 撤回群待办
-     * @param group_id 
+     * @param group_id
      */
     async delTodo(group_id) {
         let res = await this.napcat.send_packet({
@@ -1208,7 +1208,7 @@ class ncadapter {
     }
     /**
      * 设置群待办
-     * @param group_id 
+     * @param group_id
      * @param message_id
      */
     async setTodo(group_id, message_id) {
@@ -1231,10 +1231,10 @@ class ncadapter {
     }
     /**
      * 获取历史消息
-     * @param group_id 
-     * @param message_seq 
-     * @param count 
-     * @returns 
+     * @param group_id
+     * @param message_seq
+     * @param count
+     * @returns
      */
     async getChatHistory(group_id, message_seq = 0, count = 20, isPrivate = false) {
         let forg
@@ -1244,7 +1244,7 @@ class ncadapter {
                     user_id: group_id,
                 },
                 api: 'get_friend_msg_history'
-            }            
+            }
         } else {
             forg = {
                 body: {
@@ -1279,8 +1279,8 @@ class ncadapter {
     }
     /**
      * 退群 解散群聊
-     * @param group_id 
-     * @returns 
+     * @param group_id
+     * @returns
      */
     async groupQuit(group_id) {
         let res = true
@@ -1294,11 +1294,11 @@ class ncadapter {
     }
     /**
      * 设置头衔
-     * @param group_id 
-     * @param user_id 
-     * @param title 
+     * @param group_id
+     * @param user_id
+     * @param title
      * @param duration 无效参数
-     * @returns 
+     * @returns
      */
     async setTitle(group_id, user_id, title, duration = -1) {
         let res = true
@@ -1328,10 +1328,10 @@ class ncadapter {
     }
     /**
      * 改群名片
-     * @param group_id 
-     * @param user_id 
-     * @param card 
-     * @returns 
+     * @param group_id
+     * @param user_id
+     * @param card
+     * @returns
      */
     async setCard(group_id, user_id, card) {
         let res = true
@@ -1345,9 +1345,9 @@ class ncadapter {
     }
     /**
      * 戳一戳
-     * @param group_id 
-     * @param user_id 
-     * @returns 
+     * @param group_id
+     * @param user_id
+     * @returns
      */
     async pokeMember(group_id, user_id) {
         let res = true
@@ -1363,9 +1363,9 @@ class ncadapter {
     }
     /**
      * 改群头像
-     * @param group_id 
+     * @param group_id
      * @param image buffer、base64、url、file
-     * @returns 
+     * @returns
      */
     async setAvatar(group_id, image) {
         if(Buffer.isBuffer(image)) {
@@ -1385,9 +1385,9 @@ class ncadapter {
     }
     /**
      * 改群名
-     * @param group_id 
-     * @param name 
-     * @returns 
+     * @param group_id
+     * @param name
+     * @returns
      */
     async setName(group_id, name) {
         let res = true
@@ -1417,10 +1417,10 @@ class ncadapter {
     }
     /**
      * 群禁言
-     * @param gid 
-     * @param uid 
-     * @param duration 
-     * @returns 
+     * @param gid
+     * @param uid
+     * @param duration
+     * @returns
      */
     async muteMember(gid, uid, duration) {
         let res = true
@@ -1433,8 +1433,8 @@ class ncadapter {
     }
     /**
      * 全体禁言
-     * @param gid 
-     * @param enable 
+     * @param gid
+     * @param enable
      */
     async muteAll(gid, enable) {
         let res = true
@@ -1447,8 +1447,8 @@ class ncadapter {
     }
     /**
      * 撤回消息
-     * @param msg_id 
-     * @returns 
+     * @param msg_id
+     * @returns
      */
     async recallMsg(msg_id) {
         if (!msg_id) return false
@@ -1457,7 +1457,7 @@ class ncadapter {
     /**
      * 发送消息
      * @param group_id 群聊填此
-     * @param msg 
+     * @param msg
      * @param msgid 引用的消息ID，node等特殊消息无效
      * @param user_id 私聊填此
      * @param recall 暂时无用
@@ -1514,10 +1514,11 @@ class ncadapter {
                 let news = {}
                 if (msg.data.meta.detail.news[0].text) news = { news: msg.data.meta.detail.news } // 当news不存在时，不传递news避免显示异常
                 let body = { ...forg.apiBody, message: ncmsg, ...news }
-                res = await this.napcat[forg.forward](body)
+                res = this.napcat[forg.forward](body)
             } else {
-                res = await this.napcat[forg.api]({ ...forg.apiBody, message: ncmsg })
+                res = this.napcat[forg.api]({ ...forg.apiBody, message: ncmsg })
             }
+            res = await nccommon.setTimeout(res, 30000, '消息发送超时，请重试')
         } catch (error) {
             nccommon.error(this.bot, `发送消息错误`)
             throw error
