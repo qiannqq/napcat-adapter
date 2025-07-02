@@ -72,14 +72,14 @@ body:
   - type: textarea
     attributes:
       label: 实际行为
-      description: 描述实际发生的情况
+      description: 描述实际发生的情况（聊天截图）
     validations:
       required: true
 
   - type: textarea
     attributes:
       label: 错误日志
-      description: 请提供相关的错误日志
+      description: 请提供相关的错误日志（请直接复制粘贴在下方）
       render: shell
 
   - type: dropdown
