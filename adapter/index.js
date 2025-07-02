@@ -506,6 +506,7 @@ class ncadapter {
                     mute: async (time) => {
                         let res = true
                         try {
+                            if(Number(time) > 2592000) time = 2592000
                             await this.napcat.set_group_ban({ group_id, user_id, duration: time })
                         } catch (error) { res = false } //报错不处理
                         return res
@@ -1425,6 +1426,7 @@ class ncadapter {
     async muteMember(gid, uid, duration) {
         let res = true
         try {
+            if(Number(duration) > 2592000) duration = 2592000
             await this.napcat.set_group_ban({ group_id: gid, user_id: uid, duration })
         } catch (error) {
             res = false
