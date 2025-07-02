@@ -34,7 +34,7 @@ class ncadapter {
         // global.napcat = this.napcat
 
         await this.modelInit()
-        await this.icqq()
+        // await this.icqq()
         this.BotInit()
     }
     /** 加载ICQQ相关方法 */
@@ -1536,8 +1536,8 @@ class ncadapter {
         this.loadAutoRefresh()
         if(!nccommon.isTRSS()) {
             await import('../lib/bot.js')
+            if(!Bot?.isOnline()) Bot.nickname = this.bot.nickname
         }
-        if(!Bot?.isOnline()) Bot.nickname = this.bot.nickname
         this.dealEvent({ post_type: 'system', notice_type: 'online' }, ['system', 'system.online'])
     }
     /** 设置自动刷新 */
