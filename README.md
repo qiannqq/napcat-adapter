@@ -135,8 +135,6 @@ pnpm install --filter=napcat-adapter
    <details>
      <summary>点击展开</summary>
 
-   * 该方案仅支持音频、视频、图片文件，需直接发送而非使用群对象和用户对象中的 sendFile。
-
    ```bash
    # 部署到 NapCat 和 Miao-Yunzai 都能访问的服务器
    git clone https://gitee.com/qiannqq/Lain-drive.git
