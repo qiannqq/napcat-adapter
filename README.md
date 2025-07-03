@@ -135,17 +135,23 @@ pnpm install --filter=napcat-adapter
    <details>
      <summary>点击展开</summary>
 
+    1. 方案1，Yunzai、Lain-drive各自独立运行
    ```bash
    # 部署到 NapCat 和 Miao-Yunzai 都能访问的服务器
    git clone https://gitee.com/qiannqq/Lain-drive.git
+   # 安装 Lain-drive依赖
    pnpm i
+   # 启动指令
    node .
    # 启动后，在 config/config.yaml 修改服务器地址为 NapCat 可访问的地址
    # 在 Yunzai 安装该插件
    curl -o "./plugins/example/大文件上传.js" "https://gitee.com/qiannqq/yunzai-plugin-JS/raw/master/JS/uploadFile.js"
    # 编辑插件中 IP 地址为你部署 Lain-drive 的地址
+   # 在 Yunzai 根目录安装依赖
    pnpm i node-fetch -w
    ```
+    2. 方案2，将Lain-drive作为插件放进Yunzai中，跟随插件加载一起启动<br>
+      [点此跳转方案2](https://gitee.com/qiannqq/Lain-drive#lain-drive-%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8-napcat%E8%B7%A8%E8%AE%BE%E5%A4%87%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88)
 
    </details>
 
