@@ -139,7 +139,7 @@ pnpm install --filter=napcat-adapter
 
    ```bash
    # 部署到 NapCat 和 Miao-Yunzai 都能访问的服务器
-   git clone https://github.com/Lain-plugin/Lain-drive.git
+   git clone https://gitee.com/qiannqq/Lain-drive.git
    pnpm i
    node .
    # 启动后，在 config/config.yaml 修改服务器地址为 NapCat 可访问的地址
