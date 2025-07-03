@@ -65,39 +65,61 @@ pnpm install --filter=napcat-adapter
 1. **Docker**
     <details>
       <summary>1Panel</summary>
-      
-      首先登录进入面板，然后点击左侧边栏的“容器”，找到你 **现在使用** 的Napcat容器，然后点击编辑  
-      ![1Panel-1](./other/docker-1p1.jpg)  
-      找到如图所示的目录挂载，添加一个，选择本机目录，左边本机目录选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写  
-      ![1Panel-2](./other/docker-1p2.jpg)  
+
+      首先登录进入面板，然后点击左侧边栏的“容器”，找到你 **现在使用** 的Napcat容器，然后点击编辑
+      ![1Panel-1](./other/docker-1p1.jpg)
+      找到如图所示的目录挂载，添加一个，选择本机目录，左边本机目录选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写
+      ![1Panel-2](./other/docker-1p2.jpg)
       完成后保存即可
     </details>
-    
+
     <details>
       <summary>宝塔面板</summary>
-      
-      首先登录进入面板，然后点击左侧边栏的“Docker”，点击上面“容器”，找到你 **现在使用** 的Napcat容器，然后点击管理  
-      ![BT-1](./other/docker-bt1.jpg)  
-      找到左侧编辑容器，点击更多设置，添加一个“挂载/映射”，选择“本机目录”，选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写  
-      ![BT-2](./other/docker-bt2.jpg)  
-      完成后滑到最底下点击保存容器配置即可  
+
+      首先登录进入面板，然后点击左侧边栏的“Docker”，点击上面“容器”，找到你 **现在使用** 的Napcat容器，然后点击管理
+      ![BT-1](./other/docker-bt1.jpg)
+      找到左侧编辑容器，点击更多设置，添加一个“挂载/映射”，选择“本机目录”，选择喵崽所在 **绝对路径** ，右侧容器目录最好也是相同填写
+      ![BT-2](./other/docker-bt2.jpg)
+      完成后滑到最底下点击保存容器配置即可
       ![BT-3](./other/docker-bt3.jpg)
     </details>
-    
+
     <details>
       <summary>其他还在烧烤中</summary>
-      
-      都说了还在烧烤中看不到吗？  
+
+      都说了还在烧烤中看不到吗？
       ![表情](https://gitee.com/qiannqq/Gi-plugin/raw/df8419c845885efa4432d4a6d3346e7a72c03567/resources/img/cd.jpg)
     </details>
 
 2. **Windows**
    - 一般来说，Windows下的Miao-Yunzai和Napcat.OneBot的目录是完全一致的，所以不需要做任何配置。
 
-3. **WSL**
+3. **Android Termux**
+
+    <details>
+      <summary>tmoe Chroot容器</summary>
+      该方法重启后会失效，因此每次重启都需要重新配置。<br>
+      Chroot仅限Root环境可使用<br>
+
+      ```bash
+      # 在termux中执行，而不是容器环境
+      # 进入SU
+      su
+      # CD进入Napcat容器目录
+      cd /data/data/com.termux/files/home/.local/share/tmoe-linux/containers/chroot/<Napcat容器名称>/root
+      # 创建TRSS_AllBot目录
+      mkdir TRSS_AllBot
+      # 挂载TRSS_AllBot
+      mount --bind /data/data/com.termux/files/home/.local/share/tmoe-linux/containers/chroot/<Yunzai容器名称>/root/TRSS_AllBot /data/data/com.termux/files/home/.local/share/tmoe-linux/containers/chroot/<Napcat容器名称>/root/TRSS_AllBot
+      # 退出SU
+      exit
+      ```
+    </details>
+
+4. **WSL**
    - 已有解决方法，正在编写中...
 
-4. **跨设备（完全不在同一设备的情况）**
+5. **跨设备（完全不在同一设备的情况）**
    - 已有解决方法，正在编写中...
 #### 支持
 | 功能 | 支持情况 |
@@ -112,7 +134,7 @@ pnpm install --filter=napcat-adapter
 | 事件接受 | *✅ |
 
 #### 常见问题
-   
+
 Q：我的插件/Bot日志产生了如下报错，该怎么解决？
 ```
 [MiaoYz][xx:xx:xx.xxx][ERRO] ApiRejection {
