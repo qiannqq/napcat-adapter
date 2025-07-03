@@ -883,7 +883,7 @@ class ncadapter {
             file = `base64://${file.toString('base64')}`
         } else if(nccommon.isLocalPath(file)) {
             name = name ? name : path.basename(nccommon.getFilePath(file))
-            file = nccommon.getFile(file)
+            file = await nccommon.getFile(file)
         }
         let cans = {
             file,
