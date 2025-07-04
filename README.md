@@ -135,10 +135,11 @@ pnpm install --filter=napcat-adapter
    <details>
      <summary>点击展开</summary>
 
-    1. 方案1，Yunzai、Lain-drive各自独立运行
    ```bash
    # 部署到 NapCat 和 Miao-Yunzai 都能访问的服务器
    git clone https://gitee.com/qiannqq/Lain-drive.git
+   # 如果要将Lain-drive作为插件安装在Yunzai中，跟随Yunzai启动，则使用以下指令
+   # git clone --depth=1 https://gitee.com/qiannqq/Lain-drive.git ./plugins/Lain-drive
    # 安装 Lain-drive依赖
    pnpm i
    # 启动指令
@@ -150,8 +151,40 @@ pnpm install --filter=napcat-adapter
    # 在 Yunzai 根目录安装依赖
    pnpm i node-fetch -w
    ```
-    2. 方案2，将Lain-drive作为插件放进Yunzai中，跟随插件加载一起启动<br>
-      [点此跳转方案2](https://gitee.com/qiannqq/Lain-drive#lain-drive-%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8-napcat%E8%B7%A8%E8%AE%BE%E5%A4%87%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88)
+   </details>
+
+5. Other 其他方案
+   <details>
+     <summary>此方案仅适用于有代码功底或会熟练运用AI写代码的用户</summary>
+
+    * 为了实现大文件发送，我给Bot添加了一个uploadFile的函数<br>
+    * 在文件超过10MB大小时，适配器便会判断Bot.uploadFile这个函数是否存在<br>
+    * 如果存在，适配器则会尝试调用Bot.uploadFile，向其传入文件的Buffer数据，获取Bot.uploadFile返回的参数<br>
+    * 一般这个参数为URL，并且这个URL是让Napcat访问的，如果Napcat无法访问到目标地址，则文件发送失败<br>
+    * 所以，你可以通过自定义Bot.uploadFile函数，让其使用其他的文件服务器，比如阿里云的OSS对象存储
+
+    #### 以下是适配器处理文件的部分代码，位于`./lib/utils/common.js`，nccommon类中
+    ```javascript
+        async getFile(file) {
+            if(this.isLocalPath(file)) {
+                try {
+                    let rawFile = fs.readFileSync(this.getFilePath(file))
+                    if(rawFile.length > 10485760) {
+                      if(Bot.uploadFile) {
+                        return await Bot.uploadFile(rawFile)
+                      } else {
+                        return this.getFilePath(file)
+                      }
+                    }
+                    return `base64://${rawFile.toString('base64')}`
+                } catch {
+                    return this.getFilePath(file)
+                }
+            } else {
+                return file
+            }
+        }
+    ```
 
    </details>
 
