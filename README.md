@@ -71,7 +71,7 @@ pnpm install --filter=napcat-adapter
 
 #### 关于文件
 
-* WebSocket 支持小文件（图片、视频、音频、文件等任何形式的数据）传输，但单帧最大为 16MB，因此文件传输大小被限制为 10MB。超过 10MB 的文件将直接让 NapCat 读取本地文件。
+* WebSocket 支持小文件（图片、视频、音频、文件等任何形式的数据）传输，但单帧最大为 16MB，因此文件传输大小被限制为 10MB。超过 10MB 的文件将调用Bot.uploadFile尝试上传并获取URL，若Bot.uploadFile不存在则直接让 NapCat 读取本地文件。
 * 如果有大文件传输需求，请确保 NapCat.OneBot 可以访问 Miao-Yunzai 的目录，因使用绝对路径，需让 NapCat.OneBot 访问的路径与真实路径一致。
 
 1. **Docker**
@@ -160,7 +160,8 @@ pnpm install --filter=napcat-adapter
     * 在文件超过10MB大小时，适配器便会判断Bot.uploadFile这个函数是否存在<br>
     * 如果存在，适配器则会尝试调用Bot.uploadFile，向其传入文件的Buffer数据，获取Bot.uploadFile返回的参数<br>
     * 一般这个参数为URL，并且这个URL是让Napcat访问的，如果Napcat无法访问到目标地址，则文件发送失败<br>
-    * 所以，你可以通过自定义Bot.uploadFile函数，让其使用其他的文件服务器，比如阿里云的OSS对象存储
+    * 所以，你可以通过自定义Bot.uploadFile函数，让其使用其他的文件服务器，比如阿里云的OSS对象存储<br>
+    * Bot.uploadFile可以参考 [uploadFile.js](https://gitee.com/qiannqq/yunzai-plugin-JS/raw/master/JS/uploadFile.js)
 
     #### 以下是适配器处理文件的部分代码，位于`./lib/utils/common.js`，nccommon类中
     ```javascript
