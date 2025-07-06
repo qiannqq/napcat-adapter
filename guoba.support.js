@@ -66,6 +66,18 @@ export function supportGuoba() {
           label: '打印Bot信息',
           bottomHelpMessage: '输出日志时是否携带Bot信息',
           component: 'Switch'
+        },
+        {
+          field: 'bigFileSize',
+          label: '大文件阈值',
+          bottomHelpMessage: '超过设置的阈值则按大文件处理，单位：字节。默认10MB',
+          helpMessage: '注意，ws单帧限制16MB，超过16MB的文件传输可能会导致WS连接异常',
+          component: 'InputNumber',
+          componentProps: {
+            min: 0,
+            max: 16777216,
+            placeholder: '请输入阈值',
+          }
         }
       ],
       async getConfigData() {

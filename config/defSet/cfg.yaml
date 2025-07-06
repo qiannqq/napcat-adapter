@@ -15,3 +15,6 @@ reconnection:
 logbotinfo: true
 # 已废弃，不建议开启
 isBotuinArray: false
+# 大文件阈值，超过设置的阈值则按大文件处理，单位：字节。默认10MB
+# 注意，ws单帧限制16MB，超过16MB的文件传输可能会导致WS连接异常
+bigFileSize: 10485760

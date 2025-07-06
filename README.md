@@ -165,25 +165,41 @@ pnpm install --filter=napcat-adapter
 
     #### 以下是适配器处理文件的部分代码，位于`./lib/utils/common.js`，nccommon类中
     ```javascript
-        async getFile(file) {
-            if(this.isLocalPath(file)) {
-                try {
-                    let rawFile = fs.readFileSync(this.getFilePath(file))
-                    if(rawFile.length > 10485760) {
-                      if(Bot.uploadFile) {
-                        return await Bot.uploadFile(rawFile)
-                      } else {
-                        return this.getFilePath(file)
-                      }
+    /**
+     * 标准化文件消息
+     * @param file
+     */
+    async getFile(file) {
+        if(this.isLocalPath(file) || Buffer.isBuffer(file)) {
+            try {
+                let rawFile = Buffer.isBuffer(file) ? file : fs.readFileSync(this.getFilePath(file))
+                /** 文件大小判断 */
+                if(rawFile.length > (cfg().bigFileSize || 10485760)) {
+                  if(Bot.uploadFile && typeof Bot.uploadFile === 'function') {
+                    /** 有uploadFile走uploadFile */
+                    return await Bot.uploadFile(rawFile)
+                  } else {
+                    /** 没有uploadFile如果是Buffer就缓存到本地，否则直接返回绝对路径 */
+                    if(Buffer.isBuffer(file)) {
+                      let TempFileName = `./temp/napcat-file-temp.${Date.now()}`
+                      fs.writeFileSync(TempFileName, file)
+                      file = TempFileName
+                      /** 缓存到本地后，30秒删除 */
+                      setTimeout(() => {
+                        fs.unlinkSync(TempFileName)
+                      }, 1000 * 30)
                     }
-                    return `base64://${rawFile.toString('base64')}`
-                } catch {
                     return this.getFilePath(file)
+                  }
                 }
-            } else {
-                return file
+                return `base64://${rawFile.toString('base64')}`
+            } catch {
+                return this.getFilePath(file)
             }
+        } else {
+            return file
         }
+    }
     ```
 
    </details>
