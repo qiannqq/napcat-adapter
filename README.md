@@ -156,6 +156,8 @@ pnpm install --filter=napcat-adapter
    <details>
      <summary>此方案仅适用于有代码功底或会熟练运用AI写代码的用户</summary>
 
+    <br>
+
     * 为了实现大文件发送，我给Bot添加了一个uploadFile的函数<br>
     * 在文件超过10MB大小时，适配器便会判断Bot.uploadFile这个函数是否存在<br>
     * 如果存在，适配器则会尝试调用Bot.uploadFile，向其传入文件的Buffer数据，获取Bot.uploadFile返回的参数<br>

@@ -639,6 +639,7 @@ class ncadapter {
             setGroupReq: async(gid, seq, yes = true, reason = '', block = false) => await this.setGroupReq(seq, yes, reason),
             setGroupInvite: async(gid, seq, yes = true, block = false) => await this.setGroupReq(seq, yes, ''),
             sendFile: async(file, name) => await this.sendFile(user_id, undefined, file, undefined, name),
+            getNTPicRkey: async() => await this.getRkey(),
             user_id,
         }
     }
@@ -738,7 +739,8 @@ class ncadapter {
              * @param user_uid uid非qq，uid与qq一样是固定不变的，在icqq获取到的在这里也能用
              * @returns
              */
-            invite: async(user_uid) => await this.invite(group_id, user_uid)
+            invite: async(user_uid) => await this.invite(group_id, user_uid),
+            getNTPicRkey: async() => await this.getRkey()
         }
     }
     async getPrivateFileUrl(file_id) {
@@ -1020,7 +1022,7 @@ class ncadapter {
         return res
     }
     /**
-     * 群加精化
+     * 群加精华
      * @param seq
      * @param rand
      * @returns
@@ -1035,6 +1037,17 @@ class ncadapter {
             throw error
         }
         return res
+    }
+    /**
+     * 获取Resources Key
+     */
+    async getRkey() {
+      try {
+        let res = await this.napcat.nc_get_rkey()
+        return { "offNTPicRkey": res.find(i => i.type == 10), "groupNTPicRkey": res.find(i => i.type == 20) }
+      } catch (error) {
+        throw error
+      }
     }
     /**
      * 获取at全体成员 剩余次数
