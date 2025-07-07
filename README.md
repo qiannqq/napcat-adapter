@@ -1,7 +1,7 @@
 # Yunzai NapCat 适配器 NapCat-Adapter
 
 <p align="center">
-  <img src="./other/logo.png" width="30%" height="30%">
+  <img src="./other/logo.png" width="30%">
 </p>
 
 #### 简介

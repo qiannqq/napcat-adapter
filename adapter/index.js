@@ -1044,7 +1044,7 @@ class ncadapter {
     async getRkey() {
       try {
         let res = await this.napcat.nc_get_rkey()
-        return { "offNTPicRkey": res.find(i => i.type == 10), "groupNTPicRkey": res.find(i => i.type == 20) }
+        return { "offNTPicRkey": res.find(i => i.type == 10).rkey, "groupNTPicRkey": res.find(i => i.type == 20).rkey }
       } catch (error) {
         throw error
       }
