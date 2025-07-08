@@ -80,9 +80,9 @@ pnpm install --filter=napcat-adapter
      <summary>1Panel</summary>
 
    登录面板后，点击左侧“容器”，找到当前使用的 NapCat 容器，点击“编辑”。
-   ![1Panel-1](./other/docker-1p1.jpg)
+   ![1Panel-1](./other/docker-1p1.png)
    找到目录挂载，添加一个，左侧选择本机目录（喵崽所在绝对路径），右侧容器目录填写相同路径。
-   ![1Panel-2](./other/docker-1p2.jpg)
+   ![1Panel-2](./other/docker-1p2.png)
 
    </details>
 
