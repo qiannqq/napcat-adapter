@@ -31,7 +31,7 @@ export function supportGuoba() {
         {  
           field: 'multiple',  
           label: '多Bot',  
-          bottomHelpMessage: "是否开启连接多个Napcat.OneBot，开启后需在\"./plugins/napcat-adapter/config/botlist.json\"配置多个连接",  
+          bottomHelpMessage: "是否开启连接多个Napcat.OneBot，开启后请在下方多Bot配置配置多个连接",  
           required: true,  
           component: 'Switch'  
         },  
@@ -89,7 +89,7 @@ export function supportGuoba() {
           field: 'botlist',  
           label: 'Bot连接列表',  
           component: 'GSubForm',  
-          bottomHelpMessage: '请先将多Bot开关打开，否则此处多Bot配置不生效',  
+          bottomHelpMessage: '请先在上方打开多Bot开关，否则此处多Bot配置不生效（如打开此处显示0项请先保存一遍）',  
           componentProps: {  
             multiple: true,  
             modalProps: {  
