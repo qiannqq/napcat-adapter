@@ -50,7 +50,7 @@ git clone --depth=1 https://github.com/qiannqq/napcat-adapter.git ./plugins/napc
 
 ```bash
 pnpm install --filter=napcat-adapter
-# Yunzai-Next 请使用以下指令安装依赖
+# Yunzai-Next 等使用yarn管理依赖的请使用以下指令安装依赖
 # yarn install
 ```
 
@@ -59,14 +59,16 @@ pnpm install --filter=napcat-adapter
 * ⚠️ 本适配器的工作模式为 **正向 WS 连接**，请确保 `napcat-adapter` 可以正常访问 NapCat.OneBot 所提供的 IP 和端口。
 * ⚠️ 如果 Miao-Yunzai 与 NapCat.OneBot 不在同一环境（例如一方在 Docker、WSL 系统），你可能需要额外配置，或查询 IP 地址并正确配置以确保连接正常。
 
-关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address)
+关于 WSL 的帮助请参考：[WSL Networking Documentation](https://learn.microsoft.com/zh-cn/windows/wsl/networking#identify-ip-address)<br>
 关于 Docker 配置端口映射请参考：[Docker 镜像配置端口](https://www.doubao.com/thread/w76de7e1b8088ac44)
 
 1. 安装并打开 NapCat.OneBot，登录 `http://你的IP地址:6099/webui`，默认登录密码为 `napcat`。
+* **注意：如果你的端口`6099`暴露在公网中，请务必修改登录密码！**
 2. 扫码登录账号后，在网络配置里创建一个 **WebSocket 服务器**，并启用。
    ![cfg-napcat](./other/cfg-napcat.png)
-3. 打开 Miao-Yunzai 根目录下的 `config/config/bot.yaml`，将 `skip_login: false` 改为 `skip_login: true`（大约在第 32 行），以解决多个适配器互相影响导致报错的问题。
+3. 打开 Miao-Yunzai 根目录下的 `config/config/bot.yaml`，将 `skip_login: false` 改为 `skip_login: true`（大约在第 32 行），以解决多个适配器互相影响导致报错的问题。**（ps：本适配器支持与icqq同时运行，若仍需使用icqq，可跳过此步骤。）**
 4. 安装本适配器后启动一次，打开插件根目录下的 `config/config/cfg.yaml`，编辑 `baseUrl` 地址为刚刚在 NapCat WebUI 中配置的地址（例如：`ws://0.0.0.0:3000`）。如果在配置 WebSocket 服务器时输入了 token，请取消配置文件里 token 的注释，并编辑为你在 WebSocket 服务器配置的 token。
+* **注意：跨设备公网WebSocket连接，请务必配置连接Token**
 5. 重启 Yunzai 后即可享用。
 
 #### 关于文件
