@@ -55,7 +55,7 @@ pnpm install --filter=napcat-adapter
 ```
 
 #### Napcat-Adapter 文档地址
-* [Napcat-Adapter-Docs](https://ncap.mengxia.tech/)
+* [Napcat-Adapter-Docs](https://ncadoc.yilx.cc/)
 * 由 **皮梦 & 空间站「星旅」** 提供
 
 #### 连接方式
