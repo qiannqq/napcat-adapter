@@ -58,6 +58,8 @@ pnpm install --filter=napcat-adapter
 * [Napcat-Adapter-Docs](https://ncadoc.yilx.cc/)
 * 由 **皮梦 & 空间站「星旅」** 提供
 
+**注意：README.md的文档后续将不再更新，请前往[Napcat-Adapter-Docs](https://ncadoc.yilx.cc/)查看文档**
+
 #### 连接方式
 
 * ⚠️ 本适配器的工作模式为 **正向 WS 连接**，请确保 `napcat-adapter` 可以正常访问 NapCat.OneBot 所提供的 IP 和端口。
