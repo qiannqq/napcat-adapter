@@ -242,6 +242,7 @@ class ncadapter {
                         nickname: item.nickname || this.nickname, // 使用传入的 nickname
                         user_id: String(item.user_id || this.id), // 使用传入的 user_id 并转为字符串
                         content: item.message,
+                        time: NaN.isNaN(Number(item.time)) ? Date.now() : item.time || Date.now(),
                         ...news
                     }
                 });
