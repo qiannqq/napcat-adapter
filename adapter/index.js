@@ -1496,12 +1496,17 @@ class ncadapter {
     async sendMsg(group_id, msg, msgid = false, user_id, recall, isHook) {
         /**执行hookSendMsg，是否交由hook处理 */
         let hook
-        if(isHook !== true) {
-          hook = await Bot[this.bot.uin].hookSendMsg(group_id, msg, msgid, user_id, recall)
-          if (!hook?.isNext && !isHook) {
-            return hook.res
-          };
-          ({ group_id, msg, msgid, user_id, recall } = hook.data);
+        try {
+          if (isHook !== true) {
+            hook = await Bot[this.bot.uin].hookSendMsg(group_id, msg, msgid, user_id, recall)
+            if (!hook?.isNext && !isHook) {
+              return hook.res
+            };
+            ({ group_id, msg, msgid, user_id, recall } = hook.data);
+          }
+        } catch (error) {
+          // Hook异常 跳过
+          nccommon.debug(this.bot, 'hookSendMsg 异常', error)
         }
 
         if(Promise.resolve(msg) === msg) {
