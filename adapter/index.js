@@ -190,12 +190,12 @@ class ncadapter {
             sendApi: async (apiName, params) => {
                 try {
                     /** 为什么node-napcat-ts不返回原始数据呢... 头疼 */
-                    return {
+                    return JSON.stringify({
                         "status": "ok",
                         "retcode": 0,
                         "data": await this.napcat.send(apiName, params),
                         "echo": ""
-                    }
+                    })
                 } catch (error) {
                     nccommon.error(this.bot, `调用API ${apiName} 失败`, error);
                     throw error;
