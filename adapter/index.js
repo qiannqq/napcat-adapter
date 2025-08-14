@@ -190,12 +190,12 @@ class ncadapter {
             sendApi: async (apiName, params) => {
                 try {
                     /** 为什么node-napcat-ts不返回原始数据呢... 头疼 */
-                    return JSON.stringify({
+                    return {
                         "status": "ok",
                         "retcode": 0,
                         "data": await this.napcat.send(apiName, params),
                         "echo": ""
-                    })
+                    }
                 } catch (error) {
                     nccommon.error(this.bot, `调用API ${apiName} 失败`, error);
                     throw error;
@@ -242,7 +242,7 @@ class ncadapter {
                         nickname: item.nickname || this.nickname, // 使用传入的 nickname
                         user_id: String(item.user_id || this.id), // 使用传入的 user_id 并转为字符串
                         content: item.message,
-                        time: NaN.isNaN(Number(item.time)) ? Date.now() : item.time || Date.now(),
+                        time: isNaN(Number(item.time)) ? Date.now() : item.time || Date.now(),
                         ...news
                     }
                 });
