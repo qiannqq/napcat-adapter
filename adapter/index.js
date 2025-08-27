@@ -19,6 +19,8 @@ class ncadapter {
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
         this.napcat.on('message', (data) => {
+            nccommon.debug(this.bot, "收到Message事件")
+            nccommon.debug(this.bot, data)
             if(data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
             return this.dealEvent(data, ['message', 'message.private'])
          })
@@ -242,7 +244,7 @@ class ncadapter {
                         nickname: item.nickname || this.nickname, // 使用传入的 nickname
                         user_id: String(item.user_id || this.id), // 使用传入的 user_id 并转为字符串
                         content: item.message,
-                        time: isNaN(Number(item.time)) ? Date.now() : item.time || Date.now(),
+                        time: isNaN(Number(item.time)) ? Date.now() : item.time,
                         ...news
                     }
                 });
