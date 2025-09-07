@@ -16,8 +16,8 @@ class ncadapter {
     async init() {
         nccommon.mark({ nickname: 'NapCat', uin: '未连接' }, `NC初始化`)
         if(!this.cfg.accessToken) {
-            nccommon.error(null, 'accessToken 未配置，禁止连接')
-            nccommon.error(null, '请在锅巴或配置文件中配置accessToken后，重启进行连接')
+            nccommon.error(undefined, 'accessToken 未配置，禁止连接')
+            nccommon.error(undefined, '请在锅巴或配置文件中配置accessToken后，重启进行连接')
             return
         }
         await this.napcat.connect()
