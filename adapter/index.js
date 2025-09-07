@@ -207,6 +207,15 @@ class ncadapter {
                     nccommon.error(this.bot, `调用API ${apiName} 失败`, error);
                     throw error;
                 }
+            },
+            setNickname: async(nickname) => {
+                try {
+                    await this.napcat.set_qq_profile({ nickname })
+                } catch (error) {
+                    nccommon.error(this.bot, `设置昵称失败`, error);
+                    return false
+                }
+                return true
             }
         }
 
