@@ -23,12 +23,8 @@ class ncadapter {
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
         /** 事件监听 */
-        this.napcat.on('message', (data) => {
-            nccommon.debug(this.bot, "收到Message事件")
-            nccommon.debug(this.bot, data)
-            if(data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
-            return this.dealEvent(data, ['message', 'message.private'])
-         })
+        this.napcat.on('message', (data) => this.dealMessage(data))
+        this.napcat.on('message_sent', (data) => this.dealMessage(data))
         this.napcat.on('request', (data) => this.dealRequest(data))
         this.napcat.on('notice', (data) => this.dealNotice(data))
 
@@ -276,6 +272,16 @@ class ncadapter {
         }
 
         return forwardMsg;
+    }
+    /**
+     * 处理Message事件
+     * @param data
+     */
+    async dealMessage(data) {
+        nccommon.debug(this.bot, "收到Message事件")
+        nccommon.debug(this.bot, data)
+        if (data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
+        return this.dealEvent(data, ['message', 'message.private'])
     }
     /**
      * 处理request事件
