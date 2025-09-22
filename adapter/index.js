@@ -216,7 +216,15 @@ class ncadapter {
                     return false
                 }
                 return true
+            },
+            setGroupAddRequest: async(flag, approve = true, reason = '') => {
+              if(!flag) {
+                nccommon.error(this.bot, `设置群添加请求失败，未提供flag`)
+                return false
+              }
+              return await this.napcat.set_group_add_request({ flag, approve, reason })
             }
+
         }
 
         /** ？ */
@@ -588,7 +596,6 @@ class ncadapter {
                 case 'friend': {
                     e.approve = async (approve = true) => {
                         if (e.flag) {
-                            // return await api.set_friend_add_request(this.bot.uin, e.flag, approve)
                             return await this.napcat.set_friend_add_request({ flag: e.flag, approve, remark: '' })
                         } else {
                             return false
@@ -605,7 +612,6 @@ class ncadapter {
                         e.user_id = Number(data.user_id)
                     } catch { }
                     e.approve = async (approve = true) => {
-                        // if (e.flag) return await api.set_group_add_request(this.bot.uin, e.flag, e.sub_type, approve)
                         if(e.flag) return await this.napcat.set_group_add_request({ flag: e.flag, approve, reason: '' })
                         if (e.sub_type === 'add') {
                         } else {
