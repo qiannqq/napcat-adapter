@@ -55,14 +55,14 @@ pnpm install --filter=napcat-adapter
 ```
 
 #### Napcat-Adapter 文档地址
-* [Napcat-Adapter-Docs](https://ncadoc.yilx.cc/)
+* [Napcat-Adapter-Docs](https://nca.yilx.cc/)
 * 由 **皮梦 & 空间站「星旅」** 提供
 
-**注意：README.md的文档后续将不再更新，请前往[Napcat-Adapter-Docs](https://ncadoc.yilx.cc/)查看文档**
+**注意：README.md的文档后续将不再更新，请前往[Napcat-Adapter-Docs](https://nca.yilx.cc/)查看文档**
 
 #### 连接方式
 
-[前往 Napcat-Adapter-Docs 查看](https://ncadoc.yilx.cc/get-started.html#%F0%9F%94%A8%E5%AE%89%E8%A3%85)
+[前往 Napcat-Adapter-Docs 查看](https://nca.yilx.cc/get-started.html#%F0%9F%94%A8%E5%AE%89%E8%A3%85)
 
 
 #### 关于文件
@@ -70,7 +70,7 @@ pnpm install --filter=napcat-adapter
 * WebSocket 支持小文件（图片、视频、音频、文件等任何形式的数据）传输，但单帧最大为 16MB，因此文件传输大小被限制为 10MB。超过 10MB 的文件将调用Bot.uploadFile尝试上传并获取URL，若Bot.uploadFile不存在则直接让 NapCat 读取本地文件。
 * 如果有大文件传输需求，请确保 NapCat.OneBot 可以访问 Miao-Yunzai 的目录，因使用绝对路径，需让 NapCat.OneBot 访问的路径与真实路径一致。
 
-[前往 Napcat-Adapter-Docs 查看](https://ncadoc.yilx.cc/qa/file.html)
+[前往 Napcat-Adapter-Docs 查看](https://nca.yilx.cc/qa/file.html)
 
 
 #### 支持
@@ -88,7 +88,7 @@ pnpm install --filter=napcat-adapter
 
 #### 常见问题
 
-[前往 Napcat-Adapter-Docs 查看](https://ncadoc.yilx.cc/qa/)
+[前往 Napcat-Adapter-Docs 查看](https://nca.yilx.cc/qa/)
 
 
 
