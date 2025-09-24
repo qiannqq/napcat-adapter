@@ -54,7 +54,7 @@ class ncadapter {
         Bot.icqq = icqq
     }
     async modelInit() {
-        let modelList = [{ name: "protobuf", path: '../lib/utils/protobuf.js', errmsg: '方法：setTode、delTodo 将不可用' }]
+        let modelList = [{ name: "protobuf", path: '../lib/utils/protobuf.js', errmsg: '请安装依赖，否则适配器可能无法正常工作' }]
         for (let i of modelList) {
             if(!await this.importModel(i.name, i.path)){
                 nccommon.error(this.bot, i.errmsg)
@@ -280,6 +280,8 @@ class ncadapter {
     async dealMessage(data) {
         nccommon.debug(this.bot, "收到Message事件")
         nccommon.debug(this.bot, data)
+        /** 修改post_type为message事件，机器人可以处理自身的消息 */
+        if(data?.post_type == 'message_sent') data.post_type = 'message'
         if (data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
         return this.dealEvent(data, ['message', 'message.private'])
     }
