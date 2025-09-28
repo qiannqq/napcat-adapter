@@ -219,6 +219,15 @@ class ncadapter {
                 return false
               }
               return await this.napcat.set_group_add_request({ flag, approve, reason })
+            },
+            setAvatar: async(avatar) => {
+                try {
+                    await this.napcat.set_qq_avatar({ file: avatar })
+                } catch (error) {
+                    nccommon.error(this.bot, `设置头像失败`, error);
+                    return false
+                }
+                return true
             }
 
         }
