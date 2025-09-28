@@ -1,5 +1,5 @@
 name: Bug 报告
-description: 创建一份 Bug 报告以帮助我们改进
+description: 创建一份 Bug 报告以帮助我们改进该插件
 title: "[Bug] "
 labels: ["bug", "待处理"]
 body:
@@ -25,6 +25,7 @@ body:
       options:
         - Miao-Yunzai
         - TRSS-Yunzai
+        - 其他（请提供仓库链接以便复现问题）
     validations:
       required: true
 
