@@ -24,8 +24,20 @@
 | Miao-Yunzai         | ✅    |
 | TRSS-Yunzai         | ✅    |
 | Yunzai-Next         | ✅    |
-| Yunzai-Bot          | ✅    |
 | 理论上支持 V3 插件的 Yunzai | ✅\*  |
+
+#### 支持
+
+| 功能                | 支持情况 |
+| ----------------- | ---- |
+| 收发消息              | ✅    |
+| 戳一戳               | ✅    |
+| 合并转发、嵌套转发         | ✅    |
+| 图片、图文混排、语音、视频     | ✅    |
+| 文件相关              | \*✅  |
+| 椰奶发表说说、公告等 API 操作 | ✅    |
+| 发音乐卡片、赞我等         | ✅    |
+| 事件接受              | \*✅  |
 
 #### 反馈
 
@@ -56,7 +68,7 @@ pnpm install --filter=napcat-adapter
 
 #### Napcat-Adapter 文档地址
 * [Napcat-Adapter-Docs](https://nca.yilx.cc/)
-* 由 **皮梦 & 空间站「星旅」** 提供
+* 由 **皮梦 & 空间站「星旅」团队** 提供
 
 **注意：README.md的文档后续将不再更新，请前往[Napcat-Adapter-Docs](https://nca.yilx.cc/)查看文档**
 
@@ -72,25 +84,9 @@ pnpm install --filter=napcat-adapter
 
 [前往 Napcat-Adapter-Docs 查看](https://nca.yilx.cc/qa/file.html)
 
-
-#### 支持
-
-| 功能                | 支持情况 |
-| ----------------- | ---- |
-| 收发消息              | ✅    |
-| 戳一戳               | ✅    |
-| 合并转发、嵌套转发         | ✅    |
-| 图片、图文混排、语音、视频     | ✅    |
-| 文件相关              | \*✅  |
-| 椰奶发表说说、公告等 API 操作 | ✅    |
-| 发音乐卡片、赞我等         | ✅    |
-| 事件接受              | \*✅  |
-
 #### 常见问题
 
 [前往 Napcat-Adapter-Docs 查看](https://nca.yilx.cc/qa/)
-
-
 
 #### 致谢
 

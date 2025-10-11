@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "千奈千祁",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "dependencies": {
     "node-napcat-ts": "^0.4.11",
     "protobufjs": "^7.5.3"
