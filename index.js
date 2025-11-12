@@ -22,10 +22,7 @@ if(cfg().multiple) {
     Botlist = [cfg()]
 }
 
-if(!nccommon.isTRSS() && cfg().isBotuinArray) {
-    await import('./lib/uin.js')
-    if(!Bot?.isOnline()) Bot.nickname = 'Miao-Yunzai'
-} else if(!nccommon.isTRSS()) {
+if(!nccommon.isTRSS()) {
     if(!Bot.adapter || !Array.isArray(Bot.adapter)) Bot.adapter = []
     if(Bot?.isOnline()) Bot.adapter.push(Bot.uin)
 }
