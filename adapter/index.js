@@ -1,5 +1,6 @@
 import { NCWebsocket } from "node-napcat-ts";
 import { nccommon } from "../lib/index.js";
+import { cfg } from "../lib/index.js";
 import path from 'path'
 import fs from 'fs'
 
@@ -27,6 +28,11 @@ class ncadapter {
         this.napcat.on('message_sent', (data) => this.dealMessage(data))
         this.napcat.on('request', (data) => this.dealRequest(data))
         this.napcat.on('notice', (data) => this.dealNotice(data))
+        /** 加载 allowSelfTrigger */
+        let { allowSelfTrigger } = cfg()
+        this.ast = allowSelfTrigger ?? false // 为空值默认关闭自触发，以防潜在风险
+        /** 获取并缓存环境类型，避免高频读取 */
+        this.isTRSS = nccommon.isTRSS()
 
         this.bot = {
             nickname,
@@ -289,6 +295,8 @@ class ncadapter {
     async dealMessage(data) {
         nccommon.debug(this.bot, "收到Message事件")
         nccommon.debug(this.bot, data)
+        /** 自触发检测 */
+        if (!this.ast && (this.isTRSS ? Bot.uin.includes(data.user_id) : Bot.adapter.includes(data.user_id))) return
         /** 修改post_type为message事件，机器人可以处理自身的消息 */
         if(data?.post_type == 'message_sent') data.post_type = 'message'
         if (data?.message_type === 'group') return this.dealEvent(data, ['message', 'message.group'])
@@ -301,6 +309,8 @@ class ncadapter {
     async dealRequest(data) {
         nccommon.debug(this.bot, `收到request事件`)
         nccommon.debug(this.bot, data)
+        /** 自触发检测 */
+        if (!this.ast && (this.isTRSS ? Bot.uin.includes(data.user_id) : Bot.adapter.includes(data.user_id))) return
         let event
         switch (data.request_type) {
             case 'friend':
@@ -332,6 +342,8 @@ class ncadapter {
     async dealNotice(data) {
         nccommon.debug(this.bot, `收到通知事件`)
         nccommon.debug(this.bot, data)
+        /** 自触发检测 */
+        if (!this.ast && (this.isTRSS ? Bot.uin.includes(data.user_id) : Bot.adapter.includes(data.user_id))) return
         let minfo = {}
         let event  = []
         let body
