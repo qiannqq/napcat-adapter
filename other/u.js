@@ -50,17 +50,17 @@ export class update extends plugin {
                 if (stdout.includes("CONFLICT")) {
                     errmsgs = `存在冲突，请解决冲突后再更新，或者执行#nc强制更新，放弃本地修改`
                 }
-                logger.error(`nc适配器：自动更新失败！\n${ret.error}\n${errmsgs}`)
+                logger.error(`[NC-Ad]：自动更新失败！\n${ret.error}\n${errmsgs}`)
                 updateStatus = false
                 return true;
             }
             let Newtime = await getTime(`napcat-adapter`)
             if (/(Already up[ -]to[ -]date|已经是最新的)/.test(ret.stdout)) {
-                logger.mark(`nc适配器：自动更新未发现新版本\n最后更新时间:${Newtime}`)
+                logger.mark(`[NC-Ad]：自动更新未发现新版本\n最后更新时间:${Newtime}`)
                 updateStatus = false
                 return true;
             }
-            logger.mark(`nc适配器：自动更新成功\n最后更新时间:${Newtime}`)
+            logger.mark(`[NC-Ad]：自动更新成功\n最后更新时间:${Newtime}`)
             let updateLog = await getLog(`napcat-adapter`, oldCommitId, {}, true)
             updateLog.join(`\n\n`)
             logger.mark(updateLog)
@@ -78,7 +78,7 @@ export class update extends plugin {
         }
 
         if(updateStatus) {
-            await e.reply('[napcat-adapter]操作频繁')
+            await e.reply('[NC-Ad] 操作频繁')
             return true
         }
         updateStatus = true
@@ -88,10 +88,10 @@ export class update extends plugin {
             let command = gitPullCmd;
 
             if (e.msg.includes("强制")) {
-                e.reply(`[napcat-adapter]正在执行强制更新操作，请稍等`)
+                e.reply(`[NC-Ad] 正在执行强制更新操作，请稍等`)
                 command = `git -C ./plugins/napcat-adapter/ checkout . && ${gitPullCmd}`
             } else {
-                e.reply(`[napcat-adapter]正在执行更新操作，请稍等`)
+                e.reply(`[NC-Ad] 正在执行更新操作，请稍等`)
             }
             let oldCommitId = await getcommitId(`napcat-adapter`)
 
@@ -107,9 +107,9 @@ export class update extends plugin {
             let msgList = [];
             let time = await getTime(`napcat-adapter`)
             if (/(Already up[ -]to[ -]date|已经是最新的)/.test(ret.stdout)) {
-                await e.reply(`nc适配器已经是最新的了\n最后更新时间:${time}`)
+                await e.reply(`[NC-Ad] 已经是最新的了\n最后更新时间:${time}`)
             } else {
-                await e.reply(`[napcat-adapter]nc适配器 更新成功\n最后更新时间:${time}`)
+                await e.reply(`[NC-Ad] 更新成功\n最后更新时间:${time}`)
                 let log = await getLog(`napcat-adapter`, oldCommitId, e)
                 for (let item of log) {
                     msgList.push({
@@ -166,7 +166,7 @@ async function getLog(plugin, oldCommitId, e, autoUpdate = false) {
 /**
  * 获取上次提交的commitId
  * @param {string} plugin 插件名称
- * @returns 
+ * @returns
  */
 async function getcommitId(plugin) {
     let cm = `git -C ./plugins/${plugin}/ rev-parse --short HEAD`;
@@ -206,7 +206,7 @@ async function gitErr(err, stdout, e) {
       await e.reply(
         msg +
         `存在冲突：\n${errMsg}\n` +
-        "请解决冲突后再更新，或者执行#强制更新，放弃本地修改"
+        "请解决冲突后再更新，或者执行#nc强制更新，放弃本地修改"
       );
       return;
     }
@@ -216,7 +216,7 @@ async function gitErr(err, stdout, e) {
         msg + "存在冲突\n",
         errMsg,
         stdout,
-        "\n请解决冲突后再更新，或者执行#强制更新，放弃本地修改",
+        "\n请解决冲突后再更新，或者执行#nc强制更新，放弃本地修改",
       ]);
       return;
     }
