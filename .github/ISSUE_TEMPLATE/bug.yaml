@@ -9,6 +9,7 @@ body:
         感谢您对项目的支持与关注！提交 Bug 报告前，请确保：
         1. 已经使用最新版本的插件
         2. 已经搜索过现有 issues，确认没有重复问题
+        3. 我确定这是 Napcat-Adapter 导致的问题，并不是其他插件的问题
 
   - type: checkboxes
     attributes:
@@ -18,6 +19,8 @@ body:
           required: true
         - label: 我已搜索过[现有 issues](https://gitee.com/qiannqq/napcat-adapter/issues)，确认没有重复问题
           required: true
+        - label: 我确定这是 Napcat-Adapter 导致的问题，并不是其他插件的问题
+          required: true
 
   - type: dropdown
     attributes:
@@ -25,7 +28,7 @@ body:
       options:
         - Miao-Yunzai
         - TRSS-Yunzai
-        - 其他（请提供仓库链接以便复现问题）
+        - 其他（请在补充说明提供仓库链接以便复现问题）
     validations:
       required: true
 
@@ -58,7 +61,7 @@ body:
   - type: textarea
     attributes:
       label: 复现步骤
-      description: 请详细描述如何复现这个问题
+      description: 请详细描述如何复现这个问题，以便开发者顺利修复 bug
       placeholder: |
         1. 发送「...」指令
         2. 出现问题
@@ -72,16 +75,16 @@ body:
 
   - type: textarea
     attributes:
-      label: 实际行为
+      label: 实际行为（聊天截图）
       description: 描述实际发生的情况（聊天截图）
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: 错误日志
-      description: 请提供相关的错误日志（请直接复制粘贴在下方）
-      render: shell
+      label: 含有错误/报错信息的日志
+      description: 请提供相关的错误/报错日志（请直接复制粘贴在下方）
+      render: log
 
   - type: dropdown
     attributes:
@@ -92,6 +95,7 @@ body:
         - 偶尔（约50%）
         - 较少（约25%）
         - 随机（无规律）
+        - 不清楚
     validations:
       required: true
 
