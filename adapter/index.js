@@ -309,8 +309,6 @@ class ncadapter {
     async dealRequest(data) {
         nccommon.debug(this.bot, `收到request事件`)
         nccommon.debug(this.bot, data)
-        /** 自触发检测 */
-        if (!this.ast && (this.isTRSS ? Bot.uin.includes(data.user_id) : Bot.adapter.includes(data.user_id))) return
         let event
         switch (data.request_type) {
             case 'friend':
@@ -342,8 +340,6 @@ class ncadapter {
     async dealNotice(data) {
         nccommon.debug(this.bot, `收到通知事件`)
         nccommon.debug(this.bot, data)
-        /** 自触发检测 */
-        if (!this.ast && (this.isTRSS ? Bot.uin.includes(data.user_id) : Bot.adapter.includes(data.user_id))) return
         let minfo = {}
         let event  = []
         let body
