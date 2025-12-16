@@ -448,6 +448,13 @@ class ncadapter {
                 data.sub_type = 'ban'
                 event = ['notice', 'notice.group', 'notice.group.ban']
                 break;
+            case 'group_msg_emoji_like':  
+                event = ['notice', 'notice.group', 'notice.group.emoji_like'];  
+                if(!Bot[this.bot.uin].gl?.get(data.group_id) || !Bot[this.bot.uin].gml?.get(data.group_id)) await this.loadGroups()  
+                nccommon.info(this.bot, `群消息表情回应`, `${data.user_id}${data.is_add ? '添加' : '取消'}了消息${data.message_id}的表情回应`);  
+                data.notice_type = 'group'  
+                data.sub_type = 'emoji_like'  
+                break
             case 'notify':
                 switch(data.sub_type){
                     case 'poke':
