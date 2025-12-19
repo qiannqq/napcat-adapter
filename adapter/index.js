@@ -226,6 +226,7 @@ class ncadapter {
               }
               return await this.napcat.set_group_add_request({ flag, approve, reason })
             },
+            setFriendAddRequest: async(flag, approve = true, remark = '') => this.setFriendReq(flag, approve, remark),
             setAvatar: async(avatar) => {
                 try {
                     await this.napcat.set_qq_avatar({ file: avatar })
