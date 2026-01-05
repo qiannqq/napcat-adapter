@@ -1,6 +1,5 @@
 import { NCWebsocket } from "node-napcat-ts";
-import { nccommon } from "../lib/index.js";
-import { cfg } from "../lib/index.js";
+import { nccommon, cfg } from "../lib/index.js";
 import path from 'path'
 import fs from 'fs'
 
@@ -688,6 +687,16 @@ class ncadapter {
 
         /** 某些事件需要e.bot，走监听器没有。 */
         e.bot = Bot[this.bot.uin]
+
+        /** 插件拦截事件 */
+        if (this.cfg.allowOtherPluginIntercept) {
+            try {
+                if (typeof Bot.InterceptEvent === 'function') {
+                    const isIntercept = await Bot.InterceptEvent(data, event)
+                    if (isIntercept) return nccommon.debug(this.bot, `插件拦截事件 ${event[event.length - 1]}`), true
+                }
+            } catch { }
+        }
 
         Promise.all(event.map(i => {
             Bot.emit(i, e)
