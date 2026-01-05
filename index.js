@@ -22,6 +22,8 @@ if(cfg().multiple) {
     Botlist = [cfg()]
 }
 
+nccommon.delTempFile()
+
 if(!nccommon.isTRSS()) {
     if(!Bot.adapter || !Array.isArray(Bot.adapter)) Bot.adapter = []
     if(Bot?.isOnline()) Bot.adapter.push(Bot.uin)
