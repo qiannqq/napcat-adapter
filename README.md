@@ -11,7 +11,7 @@
 
 #### 警告
 
-* **重要！** 请勿将 `napcat-adapter（即本项目）` 和 `NapCat.OneBot` 项目发布到“bilibili、抖音、快手”等国内平台（评论留言也不行！）
+* **重要！** 请勿将 `napcat-adapter（即本项目）` 和 `NapCat.OneBot` 项目以任何形式发布到“bilibili、抖音、快手”等国内媒体平台。
 
 #### 注意事项
 
@@ -93,6 +93,8 @@ pnpm install --filter=napcat-adapter
 * NapCat 魔法猫娘（？）
 * node-napcat-ts 本适配器依赖
 * Lain-plugin 铃音插件，借鉴部分消息处理源码
+* [@皮梦](https://gitee.com/pimeng) 项目早期的测试者。提供了 Napcat-Adapter 文档
+* [@空间站「星旅」团队](https://gitee.com/Orbiter_StellarTrek) 提供了 Napcat-Adapter 文档
 
 #### 参与贡献
 
