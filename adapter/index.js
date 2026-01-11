@@ -234,6 +234,15 @@ class ncadapter {
                     return false
                 }
                 return true
+            },
+            setSignature: async(sign) => {
+                try {
+                    await this.napcat.set_self_longnick({ longNick: sign })
+                } catch (error) {
+                    nccommon.error(this.bot, `设置签名失败`, error);
+                    return false
+                }
+                return true
             }
 
         }
