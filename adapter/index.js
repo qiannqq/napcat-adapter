@@ -28,8 +28,9 @@ class ncadapter {
         this.napcat.on('request', (data) => this.dealRequest(data))
         this.napcat.on('notice', (data) => this.dealNotice(data))
         /** 加载 allowSelfTrigger */
-        let { allowSelfTrigger } = cfg()
+        let { allowSelfTrigger, allowOtherPluginIntercept } = cfg()
         this.ast = allowSelfTrigger ?? false // 为空值默认关闭自触发，以防潜在风险
+        this.cfg.allowOtherPluginIntercept = allowOtherPluginIntercept ?? false // 为空值默认关闭插件拦截事件，以防潜在风险
         /** 获取并缓存环境类型，避免高频读取 */
         this.isTRSS = nccommon.isTRSS()
 
