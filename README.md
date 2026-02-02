@@ -17,13 +17,13 @@
 
 * 本适配器虽然已趋于稳定，但并不保证完美兼容。我会持续优化该适配器，目的是做到接近 icqq 的使用感受，接近 icqq 的兼容性。
 
-#### 兼容的 Yunzai 版本（标 * 为可能存在未知的兼容性问题）
+#### 兼容的 Yunzai 版本（标 * 为可能存在未知的兼容性问题，遇到问题请 [创建 issue](https://gitee.com/qiannqq/napcat-adapter/issues/new/choose)）
 
 | Yunzai 版本           | 兼容情况 |
 | ------------------- | ---- |
 | Miao-Yunzai         | ✅    |
-| TRSS-Yunzai         | ✅    |
-| Yunzai-Next         | ✅    |
+| TRSS-Yunzai         | ✅\*  |
+| Yunzai-Next         | ✅\*  |
 | 理论上支持 V3 插件的 Yunzai | ✅\*  |
 
 #### 支持（标 * 为可能存在未知的兼容性问题）
