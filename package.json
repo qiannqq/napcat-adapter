@@ -11,7 +11,7 @@
   "author": "千奈千祁",
   "license": "GPL-3.0",
   "dependencies": {
-    "node-napcat-ts": "^0.4.11",
+    "node-napcat-ts": "^0.4.21",
     "protobufjs": "^7.5.3"
   }
 }
