@@ -1592,6 +1592,11 @@ class ncadapter {
         if(Array.isArray(msg) && msg.find(i => i?.test === true)) {
             msg = msg.find(i => i?.test === true)
         }
+        /** 处理TRSS格式的合并转发消息 */
+        if(this.isTRSS && nccommon.isTRSSForwardMsg(msg)) {
+            nccommon.debug(this.bot, '检测到TRSS格式合并转发消息，进行格式转换')
+            msg = nccommon.convertTRSSForwardMsg(msg, this.bot.nickname, this.bot.uin)
+        }
         let { ncmsg, raw_msg, node } = await nccommon.format(msg, msgid)
 
         let forg
