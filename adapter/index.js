@@ -1660,7 +1660,7 @@ class ncadapter {
     async LoadAll() {
         let dataKey = ['fl', 'gl', 'gml', 'cookies', 'bkn']
         await Promise.allSettled(dataKey.map(async i => {
-            if(i == 'cookies' && i == 'bkn') {
+            if(i == 'cookies' || i == 'bkn') {
                 let data = await redis.get(`cache:ncad-data:${this.bot.uin}:${i}`)
                 if(!data) return
                 data = JSON.parse(data)
@@ -1815,7 +1815,7 @@ class ncadapter {
      */
     async loadFriends() {
         nccommon.debug(this.bot, `加载好友列表...`)
-        Bot[this.bot.uin].fl = new Map()
+        if(!(Bot[this.bot.uin].fl instanceof Map)) Bot[this.bot.uin].fl = new Map()
         let friends = await this.napcat.get_friend_list({ no_cache: true })
         for (let i of friends) {
             let body = {
