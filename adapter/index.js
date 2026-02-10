@@ -22,11 +22,28 @@ class ncadapter {
         }
         await this.napcat.connect()
         const { nickname, user_id } = await this.napcat.get_login_info()
+        this.bot = {
+            nickname,
+            uin: user_id
+        }
         /** 事件监听 */
         this.napcat.on('message', (data) => this.dealMessage(data))
         this.napcat.on('message_sent', (data) => this.dealMessage(data))
         this.napcat.on('request', (data) => this.dealRequest(data))
         this.napcat.on('notice', (data) => this.dealNotice(data))
+        /** 退出监听 */
+        const originalExit = process.exit;
+        
+        process.exit =  async () => {
+            await Promise.allSettled([
+                nccommon.saveBotData(this.bot, Bot[this.bot.uin].fl, 5, 'fl'),
+                nccommon.saveBotData(this.bot, Bot[this.bot.uin].gl, 30, 'gl'),
+                nccommon.saveBotData(this.bot, Bot[this.bot.uin].gml, 30, 'gml'),
+                nccommon.saveBotData(this.bot, Bot[this.bot.uin].cookies, 30, 'cookies'),
+                nccommon.saveBotData(this.bot, Bot[this.bot.uin].bkn, 30, 'bkn')
+            ])
+            originalExit()
+        };
         /** 加载 allowSelfTrigger */
         let { allowSelfTrigger, allowOtherPluginIntercept } = cfg()
         this.ast = allowSelfTrigger ?? false // 为空值默认关闭自触发，以防潜在风险
@@ -34,10 +51,6 @@ class ncadapter {
         /** 获取并缓存环境类型，避免高频读取 */
         this.isTRSS = nccommon.isTRSS()
 
-        this.bot = {
-            nickname,
-            uin: user_id
-        }
         nccommon.mark(this.bot, `已连接`)
         // 调试，全局声明napcat
         // global.napcat = this.napcat
@@ -1645,7 +1658,39 @@ class ncadapter {
         return res
     }
     async LoadAll() {
-        await Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()])
+        let dataKey = ['fl', 'gl', 'gml', 'cookies', 'bkn']
+        await Promise.allSettled(dataKey.map(async i => {
+            if(i == 'cookies' && i == 'bkn') {
+                let data = await redis.get(`cache:ncad-data:${this.bot.uin}:${i}`)
+                if(!data) return
+                data = JSON.parse(data)
+                Bot[this.bot.uin][i] = data
+            } else {
+                let data = await redis.get(`cache:ncad-data:${this.bot.uin}:${i}`)
+                if(!data) return
+                try {
+                    data = nccommon.jsonToMap(data)
+                } catch (error) {
+                    nccommon.error(this.bot, `加载${i}失败`, error)
+                    return
+                }
+                if(data.size == 0) return
+                Bot[this.bot.uin][i] = data
+                Bot[this.bot.uin][i].forEach((v, k) => {
+                    Bot[i].set(k, v)
+                })
+            }
+            return Promise.resolve()
+        }))
+        if (
+            !Bot[this.bot.uin].fl?.size ||
+            !Bot[this.bot.uin].gl?.size ||
+            !Bot[this.bot.uin].gml?.size
+        ) {
+            await Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()]);
+        } else {
+            Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()])
+        }
         nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
         this.isLoadingComple = true
