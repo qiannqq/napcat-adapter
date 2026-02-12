@@ -1658,6 +1658,7 @@ class ncadapter {
         return res
     }
     async LoadAll() {
+        /** 尝试从缓存中加载数据 */
         let dataKey = ['fl', 'gl', 'gml', 'cookies', 'bkn']
         await Promise.allSettled(dataKey.map(async i => {
             if(i == 'cookies' || i == 'bkn') {
@@ -1682,6 +1683,7 @@ class ncadapter {
             }
             return Promise.resolve()
         }))
+        /** 缓存数据加载失败则直接从Napcat并发获取数据 */
         if (
             !Bot[this.bot.uin].fl?.size ||
             !Bot[this.bot.uin].gl?.size ||
@@ -1689,7 +1691,8 @@ class ncadapter {
         ) {
             await Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()]);
         } else {
-            Promise.allSettled([this.loadGroups(), this.loadFriends(), this.loadCookies()])
+            // 缓存加载成功后，慢速串行加载数据，减少卡顿
+            this.serialLoad()
         }
         nccommon.mark(this.bot, `Welcome, ${this.bot.nickname}`)
         nccommon.mark(this.bot, `资源加载完成，加载了${Bot[this.bot.uin].fl.size}个好友，${Bot[this.bot.uin].gl.size}个群`)
@@ -1700,6 +1703,11 @@ class ncadapter {
             if(!Bot?.isOnline()) Bot.nickname = this.bot.nickname
         }
         this.dealEvent({ post_type: 'system', notice_type: 'online' }, ['system', 'system.online'])
+    }
+    async serialLoad() {
+        await this.loadGroups()
+        await this.loadFriends()
+        await this.loadCookies()
     }
     /** 设置自动刷新 */
     async loadAutoRefresh() {
