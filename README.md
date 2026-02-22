@@ -86,7 +86,9 @@ pnpm install --filter=napcat-adapter
 
 #### 常见问题
 
-[前往 Napcat-Adapter-Docs 查看](https://nca-doc.star-trip.space/qa/)
+[前往 Napcat-Adapter-Docs 查看 QA](https://nca-doc.star-trip.space/qa/)
+
+或直接向AI提问，DeepWiki <br> [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/qiannqq/napcat-adapter)
 
 #### 致谢
 
