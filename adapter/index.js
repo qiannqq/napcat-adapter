@@ -257,6 +257,113 @@ class ncadapter {
                     return false
                 }
                 return true
+            },
+            /**
+             * 设置在线状态
+             * @param status 11:在线 31:离开 41:隐身 50:忙碌 60:Q我吧 70:请勿打扰
+             * @returns {Promise<boolean>}
+             */
+            setOnlineStatus: async(status) => {
+                try {
+                    await this.napcat.set_online_status({ status: Number(status) })
+                } catch (error) {
+                    nccommon.error(this.bot, `设置在线状态失败`, error);
+                    return false
+                }
+                return true
+            },
+            /**
+             * 获取合并转发消息
+             * @param resid 合并转发消息ID
+             * @returns {Promise<Array>}
+             */
+            getForwardMsg: async(resid) => {
+                try {
+                    const result = await this.napcat.get_forward_msg({ message_id: resid })
+                    return result?.messages || []
+                } catch (error) {
+                    nccommon.error(this.bot, `获取合并转发消息失败`, error);
+                    return []
+                }
+            },
+            /**
+             * 图片OCR识别
+             * @param file 图片路径或URL
+             * @returns {Promise<Object>}
+             */
+            imageOcr: async(file) => {
+                try {
+                    const result = await this.napcat.ocr_image({ image: file })
+                    return {
+                        texts: result?.texts || [],
+                        language: result?.language || 'zh'
+                    }
+                } catch (error) {
+                    nccommon.error(this.bot, `图片OCR识别失败`, error);
+                    return { texts: [], language: 'zh' }
+                }
+            },
+            /**
+             * 清理缓存
+             */
+            cleanCache: async() => {
+                try {
+                    await this.napcat.clean_cache()
+                    nccommon.mark(this.bot, '缓存清理完成')
+                } catch (error) {
+                    nccommon.error(this.bot, `清理缓存失败`, error);
+                }
+            },
+            /**
+             * 获取陌生人信息
+             * @param user_id 用户QQ号
+             * @returns {Promise<Object>}
+             */
+            getStrangerInfo: async(user_id) => {
+                try {
+                    const info = await this.napcat.get_stranger_info({ user_id: Number(user_id) })
+                    return {
+                        user_id: info.user_id,
+                        nickname: info.nickname || '',
+                        sex: info.sex || 'unknown',
+                        age: info.age || 0,
+                        area: info.area || ''
+                    }
+                } catch (error) {
+                    nccommon.error(this.bot, `获取陌生人信息失败`, error);
+                    return { user_id: Number(user_id), nickname: '', sex: 'unknown', age: 0, area: '' }
+                }
+            },
+            /**
+             * 获取频道列表
+             * @returns {Promise<Array>}
+             */
+            getGuildList: async() => {
+                try {
+                    const result = await this.napcat.get_guild_list()
+                    return result?.map(guild => ({
+                        guild_id: guild.guild_id,
+                        guild_name: guild.guild_name
+                    })) || []
+                } catch (error) {
+                    nccommon.error(this.bot, `获取频道列表失败`, error);
+                    return []
+                }
+            },
+            /**
+             * 给好友点赞
+             * @param user_id 好友QQ号
+             * @param times 点赞次数(默认1次)
+             * @returns {Promise<boolean>}
+             */
+            sendLike: async(user_id, times = 1) => {
+                try {
+                    await this.napcat.send_like({ user_id: Number(user_id), times: Number(times) })
+                } catch (error) {
+                    nccommon.error(this.bot, `给好友点赞失败`, error);
+                    return false
+                }
+                return true
             }
 
         }
@@ -1839,6 +1946,115 @@ class ncadapter {
             Bot.fl.set(i.user_id, body)
         }
         nccommon.debug(this.bot, `好友列表加载完成`)
+    }
+    /**
+     * 设置在线状态
+     * @param status 11:在线 31:离开 41:隐身 50:忙碌 60:Q我吧 70:请勿打扰
+     * @returns {Promise<boolean>}
+     */
+    async setOnlineStatus(status) {
+        let res = true
+        try {
+            await this.napcat.set_online_status({ status: Number(status) })
+        } catch (error) {
+            res = false
+            nccommon.error(this.bot, `设置在线状态失败`, error)
+        }
+        return res
+    }
+    /**
+     * 获取合并转发消息
+     * @param resid 合并转发消息ID
+     * @returns {Promise<Array>}
+     */
+    async getForwardMsg(resid) {
+        try {
+            const result = await this.napcat.get_forward_msg({ message_id: resid })
+            return result?.messages || []
+        } catch (error) {
+            nccommon.error(this.bot, `获取合并转发消息失败`, error)
+            return []
+        }
+    }
+    /**
+     * 图片OCR识别
+     * @param file 图片路径或URL
+     * @returns {Promise<Object>}
+     */
+    async imageOcr(file) {
+        try {
+            const result = await this.napcat.ocr_image({ image: file })
+            return {
+                texts: result?.texts || [],
+                language: result?.language || 'zh'
+            }
+        } catch (error) {
+            nccommon.error(this.bot, `图片OCR识别失败`, error)
+            return { texts: [], language: 'zh' }
+        }
+    }
+    /**
+     * 清理缓存
+     */
+    async cleanCache() {
+        try {
+            await this.napcat.clean_cache()
+            nccommon.mark(this.bot, '缓存清理完成')
+        } catch (error) {
+            nccommon.error(this.bot, `清理缓存失败`, error)
+        }
+    }
+    /**
+     * 获取陌生人信息
+     * @param user_id 用户QQ号
+     * @returns {Promise<Object>}
+     */
+    async getStrangerInfo(user_id) {
+        try {
+            const info = await this.napcat.get_stranger_info({ user_id: Number(user_id) })
+            return {
+                user_id: info.user_id,
+                nickname: info.nickname || '',
+                sex: info.sex || 'unknown',
+                age: info.age || 0,
+                area: info.area || ''
+            }
+        } catch (error) {
+            nccommon.error(this.bot, `获取陌生人信息失败`, error)
+            return { user_id: Number(user_id), nickname: '', sex: 'unknown', age: 0, area: '' }
+        }
+    }
+    /**
+     * 获取频道列表
+     * @returns {Promise<Array>}
+     */
+    async getGuildList() {
+        try {
+            const result = await this.napcat.get_guild_list()
+            return result?.map(guild => ({
+                guild_id: guild.guild_id,
+                guild_name: guild.guild_name
+            })) || []
+        } catch (error) {
+            nccommon.error(this.bot, `获取频道列表失败`, error)
+            return []
+        }
+    }
+    /**
+     * 给好友点赞
+     * @param user_id 好友QQ号
+     * @param times 点赞次数(默认1次)
+     * @returns {Promise<boolean>}
+     */
+    async sendLike(user_id, times = 1) {
+        let res = true
+        try {
+            await this.napcat.send_like({ user_id: Number(user_id), times: Number(times) })
+        } catch (error) {
+            res = false
+            nccommon.error(this.bot, `给好友点赞失败`, error)
+        }
+        return res
     }
 }
 
