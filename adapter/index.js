@@ -941,6 +941,7 @@ class ncadapter {
             setTodo: async(message_id) => await this.setTodo(group_id, message_id),
             delTodo: async() => await this.delTodo(group_id),
             setMessageRateLimit: async(times) => await this.setMessageRateLimit(group_id, times),
+            setReaction: async(message_id, code, is_add = true) => await this.setReaction(group_id, message_id, code, is_add),
             _setting: async(obj) => await this._setting(group_id, obj),
             setGroupJoinType: async(type, question, answer) => await this.setGroupJoinType(group_id, type, question, answer),
             /**
@@ -1451,6 +1452,38 @@ class ncadapter {
         })
         res = this.protobuf.default.decode(Buffer.from(res, 'hex'))
         return res[3] == 0
+    }
+    /**
+     * 对群消息设置表情回应
+     * @param group_id 群号
+     * @param message_id 消息ID
+     * @param code 表情ID
+     * @param is_add true添加，false取消
+     * @returns {boolean}
+     */
+    async setReaction(group_id, message_id, code, is_add = true) {
+        if(!message_id || code === undefined || code === null) return false
+        const safeMessageId = Number(message_id) || message_id
+        const emojiCode = String(code)
+        const addFlag = !!is_add
+
+        // NapCat 文档仅定义了设置表情回复，未提供取消接口参数
+        if(!addFlag) {
+            nccommon.debug(this.bot, `setReaction: is_add=false 暂不支持（NapCat文档未定义取消参数）`)
+            return false
+        }
+
+        const body = { message_id: safeMessageId, emoji_id: emojiCode }
+        try {
+            if(typeof this.napcat.set_msg_emoji_like === 'function') {
+                await this.napcat.set_msg_emoji_like(body)
+            } else {
+                await this.napcat.send('set_msg_emoji_like', body)
+            }
+            return true
+        } catch (error) {
+            throw error
+        }
     }
     /**
      * 获取历史消息
