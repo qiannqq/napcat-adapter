@@ -1511,7 +1511,15 @@ class ncadapter {
         }
         let messages = []
         try {
-            messages = await this.napcat[forg.api]({ ...forg.body, message_seq, count, reverseOrder: true })
+            // 引用锚点沿用 OneBot message_id；保留 NapCat 字段并追加 Snowluma 使用的别名。
+            messages = await this.napcat[forg.api]({
+                ...forg.body,
+                message_seq,
+                message_id: message_seq,
+                count,
+                reverseOrder: true,
+                reverse_order: true
+            })
         } catch (error) { }
         if(messages.length === 0) return messages
 
